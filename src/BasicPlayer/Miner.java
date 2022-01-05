@@ -1,9 +1,9 @@
-package examplefuncsplayer;
+package BasicPlayer;
 
 import battlecode.common.*;
 
-public class Builder extends Robot {
-    public Builder(RobotController rc) {
+public class Miner extends Robot {
+    public Miner(RobotController rc) {
         super(rc);
     }
 

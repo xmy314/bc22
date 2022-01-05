@@ -1,9 +1,9 @@
-package examplefuncsplayer;
+package BasicPlayer;
 
 import battlecode.common.*;
 
-public class Sage extends Robot {
-    public Sage(RobotController rc) {
+public class Soldier extends Robot {
+    public Soldier(RobotController rc) {
         super(rc);
     }
 

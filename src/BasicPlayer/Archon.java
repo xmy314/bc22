@@ -1,9 +1,9 @@
-package examplefuncsplayer;
+package BasicPlayer;
 
 import battlecode.common.*;
 
-public class Watchtower extends Robot {
-    public Watchtower(RobotController rc) {
+public class Archon extends Robot {
+    public Archon(RobotController rc) {
         super(rc);
     }
 
