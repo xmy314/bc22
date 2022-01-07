@@ -3,7 +3,7 @@ package BasicPlayer;
 import battlecode.common.*;
 
 public class Builder extends Robot {
-    public Builder(RobotController rc) {
+    public Builder(RobotController rc) throws GameActionException {
         super(rc);
     }
 
