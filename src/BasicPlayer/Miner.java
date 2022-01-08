@@ -48,7 +48,7 @@ public class Miner extends Robot {
             }
         }
 
-        boolean moved=!rc.isMovementReady();
+        boolean moved = !rc.isMovementReady();
         if (!moved) {
             if (nearby_enemy_units.length != 0) {
                 rc.setIndicatorString("moving away from enemy!");
@@ -59,24 +59,18 @@ public class Miner extends Robot {
 
         if (!moved) {
             MapLocation[] mines = rc.senseNearbyLocationsWithLead(rc.getType().visionRadiusSquared);
-            for(MapLocation mine:mines){
-                if(!rc.canSenseLocation(mine)){
-                    continue;
-                }
-                int lead_count=rc.senseLead(mine);
-                if(lead_count>10&&lead_count>me.distanceSquaredTo(mine)){
-                    rc.setIndicatorString("moving to ore!");
-                    nav.navigate(mine,true);
-                    moved=true;
-                    break;
-                }
+            if (mines.length > 0) {
+                rc.setIndicatorString("moving to ore!");
+                nav.navigate(mines[rc.getID() % mines.length], true);
+                rc.setIndicatorLine(me, mines[rc.getID() % mines.length], 10, 10, 10);
+                moved = true;
             }
         }
 
-        if(!moved && !acted){
+        if (!moved && !acted) {
             rc.setIndicatorString("moving around basically randomly!");
-            nav.disperseAround(spawn_point,0,100);
-            moved=true;
+            nav.disperseAround(spawn_point, 0, 100);
+            moved = true;
         }
     }
 }

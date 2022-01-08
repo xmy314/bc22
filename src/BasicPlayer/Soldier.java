@@ -1,5 +1,6 @@
 package BasicPlayer;
 
+import BasicPlayer.utils.Debug;
 import battlecode.common.*;
 
 public class Soldier extends Robot {
@@ -17,33 +18,33 @@ public class Soldier extends Robot {
 
         if (nearby_enemy_units.length > 0) {
             MapLocation toAttack = decideTarget(nearby_enemy_units).location;
+            com.setTarget(Com.ComFlag.SUPPORT, toAttack);
+
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
-                com.setTarget(Com.ComFlag.SUPPORT,toAttack);
-
             }
-            if (rc.isMovementReady()){
+            if (rc.isMovementReady()) {
                 nav.navigate(toAttack, true);
             }
         } else {
             MapLocation target = com.getTarget(Com.ComFlag.ATTACK);
-            if(target!=null) {
+            if (target != null) {
                 rc.setIndicatorString("protecting!" + target.toString());
-                nav.disperseAround(target,20,225);
+                nav.disperseAround(target, 20, 225);
                 return;
             }
 
             target = com.getTarget(Com.ComFlag.SUPPORT);
-            if(target!=null) {
+            if (target != null) {
                 rc.setIndicatorString("supporting!" + target.toString());
-                nav.disperseAround(target, 9,20);
+                nav.disperseAround(target, 9, 20);
                 return;
             }
 
             target = com.getTarget(Com.ComFlag.EXAMINE);
-            if(target!=null) {
+            if (target != null) {
                 rc.setIndicatorString("examining!" + target.toString());
-                nav.disperseAround(target, 9,20);
+                nav.disperseAround(target, 9, 20);
                 return;
             }
         }

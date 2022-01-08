@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Robot {
 
-    final public static boolean debugOn=true;
+    final public static boolean debugOn = true;
 
     static final Direction[] directions = {
             Direction.NORTH,
@@ -53,7 +53,7 @@ public class Robot {
         nearby_enemy_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
     }
 
-    public int getAttackPriority(RobotType rt) {
+    public static int getAttackPriority(RobotType rt) {
         switch (rt) {
             case MINER:
                 return 0;
@@ -72,7 +72,7 @@ public class Robot {
         }
     }
 
-    public RobotInfo decideTarget(RobotInfo[] enemies) {
+    public static RobotInfo decideTarget(RobotInfo[] enemies) {
         int record_priority = getAttackPriority(enemies[0].getType());
         int tie_breaker_health = enemies[0].getHealth();
         RobotInfo current_target = enemies[0];
