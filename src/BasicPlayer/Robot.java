@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Robot {
 
-    static final Random rng = new Random(6147);
+    final public static boolean debugOn=true;
 
     static final Direction[] directions = {
             Direction.NORTH,
@@ -23,17 +23,22 @@ public class Robot {
     static Nav nav;
     static Com com;
 
+    static int max_X;
+    static int max_Y;
+
     static MapLocation spawn_point;
 
-    int age = 0;
-    RobotInfo[] nearby_ally_units;
-    RobotInfo[] nearby_enemy_units;
+    static RobotInfo[] nearby_ally_units;
+    static RobotInfo[] nearby_enemy_units;
 
 
     public Robot(RobotController r) throws GameActionException {
         rc = r;
         nav = new Nav(r);
         com = new Com(r);
+
+        max_X = rc.getMapWidth();
+        max_Y = rc.getMapHeight();
 
         if (r.getType() == RobotType.BUILDER || r.getType() == RobotType.SOLDIER || r.getType() == RobotType.MINER || r.getType() == RobotType.SAGE) {
             spawn_point = rc.getLocation();
@@ -43,7 +48,6 @@ public class Robot {
 
     public void takeTurn() throws GameActionException {
         // stuff that every bot does.
-        age++;
 
         nearby_ally_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam());
         nearby_enemy_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());

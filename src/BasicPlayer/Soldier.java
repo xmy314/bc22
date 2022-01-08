@@ -20,12 +20,31 @@ public class Soldier extends Robot {
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
                 com.setTarget(Com.ComFlag.SUPPORT,toAttack);
+
+            }
+            if (rc.isMovementReady()){
                 nav.navigate(toAttack, true);
             }
         } else {
-            MapLocation target = com.getTarget(Com.ComFlag.SUPPORT);
+            MapLocation target = com.getTarget(Com.ComFlag.ATTACK);
             if(target!=null) {
-                nav.navigate(target, true);
+                rc.setIndicatorString("protecting!" + target.toString());
+                nav.disperseAround(target,20,225);
+                return;
+            }
+
+            target = com.getTarget(Com.ComFlag.SUPPORT);
+            if(target!=null) {
+                rc.setIndicatorString("supporting!" + target.toString());
+                nav.disperseAround(target, 9,20);
+                return;
+            }
+
+            target = com.getTarget(Com.ComFlag.EXAMINE);
+            if(target!=null) {
+                rc.setIndicatorString("examining!" + target.toString());
+                nav.disperseAround(target, 9,20);
+                return;
             }
         }
     }

@@ -8,6 +8,8 @@ import battlecode.common.RobotController;
 public class Nav {
     RobotController rc;
 
+    int[] rubble_count;
+
     static final Direction[] directions = {
             Direction.NORTH,
             Direction.NORTHEAST,
@@ -21,6 +23,7 @@ public class Nav {
 
     public Nav(RobotController r) throws GameActionException {
         rc = r;
+        rubble_count = new int[rc.getMapHeight()*rc.getMapWidth()];
     }
 
     public void navigate(MapLocation reference, boolean go_to) throws GameActionException {
@@ -33,7 +36,7 @@ public class Nav {
         int ref_distance = me.distanceSquaredTo(reference);
         int benefit_scalar = (go_to)?1:-1;
 
-        double record_benefit = 0;
+        double record_benefit = -10;
         Direction record_direction = null;
 
         for (int i = 0; i < 8; i++) {

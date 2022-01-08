@@ -24,7 +24,7 @@ public class Miner extends Robot {
                         ally_miner_count++;
                     }
                 }
-                if (ally_miner_count > 4) { // number of squares the robot can see over 4. 4 is number of squares a robot can mine with no rubble.
+                if (ally_miner_count > 3) { // number of squares the robot can see over 4. 4 is number of squares a robot can mine with no rubble.
                     rc.disintegrate();
                 }
             }

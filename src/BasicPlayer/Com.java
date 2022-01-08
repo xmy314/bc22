@@ -3,6 +3,7 @@ package BasicPlayer;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
+import battlecode.common.RobotType;
 
 public class Com {
     RobotController rc;
@@ -52,7 +53,7 @@ public class Com {
         return ret;
     }
 
-    public void setTarget(ComFlag flag, MapLocation loc) throws  GameActionException{
+    public void setTarget(ComFlag flag, MapLocation loc) throws GameActionException{
         int id=getId(flag);
         int v=compressLocation(loc);
         if(rc.readSharedArray(id)==0) {
