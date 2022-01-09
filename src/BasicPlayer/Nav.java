@@ -33,15 +33,12 @@ public class Nav {
     }
 
     public boolean navigate(MapLocation reference, boolean go_to) throws GameActionException {
+        // ~500 byte code.
         if (!rc.isMovementReady()) {
             return false;
         }
 
         MapLocation me = rc.getLocation();
-
-        if (rc.getType() == RobotType.WATCHTOWER) {
-            rc.setIndicatorLine(me, reference, 0, 0, 100);
-        }
 
         int ref_distance = me.distanceSquaredTo(reference);
         int benefit_scalar = (go_to) ? 1 : -1;
@@ -53,13 +50,6 @@ public class Nav {
             if (rc.canMove(directions[i])) {
                 MapLocation n_loc = me.add(directions[i]);
                 double benefit = benefit_scalar * (ref_distance - n_loc.distanceSquaredTo(reference)) / (1 + 0.1 * rc.senseRubble(n_loc));
-                if (n_loc.x == 0 || n_loc.y == 0 || n_loc.x == rc.getMapWidth() || n_loc.y == rc.getMapHeight()) {
-                    if (benefit > 0) {
-                        benefit *= 0.1;
-                    } else {
-                        benefit -= 5;
-                    }
-                }
 
                 if (benefit > record_benefit) {
                     record_direction = directions[i];
@@ -77,6 +67,8 @@ public class Nav {
     }
 
     public boolean disperseAround(MapLocation reference, int inner_radius, int outer_radius, int settle_mask) throws GameActionException {
+        // most of the time is 13. sometimes between 400-600;
+
         if (!rc.isMovementReady()) return false;
         MapLocation me = rc.getLocation();
         int reference_distance = me.distanceSquaredTo(reference);
@@ -100,10 +92,8 @@ public class Nav {
             if (idle_counter>=5){
                 idle_counter=0;
                 clockwise_rotation=!clockwise_rotation;
-                return navigate(rotateAround(reference, me, 2f*(clockwise_rotation?-1:1)), true);
-            }else{
-                return false;
             }
+            return false;
         } else {
             return true;
         }

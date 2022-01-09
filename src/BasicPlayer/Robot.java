@@ -46,7 +46,7 @@ public class Robot {
     }
 
     public void takeTurn() throws GameActionException {
-        // stuff that every bot does.
+        // ~700 bytecode.
 
         nearby_ally_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam());
         nearby_enemy_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());

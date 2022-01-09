@@ -17,7 +17,7 @@ public class Archon extends Robot {
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
         ideal_miner_count = Math.max(100,max_X * max_Y / (8)); // 4 for 5/turn/square. another 2 to share the area.
-        ideal_builder_count= Math.min(Math.round( (max_Y+max_X)/2f),10*rc.getArchonCount());
+        ideal_builder_count= Math.min((max_Y+max_X)/2,20*rc.getArchonCount());
     }
 
     public void takeTurn() throws GameActionException {
@@ -52,7 +52,7 @@ public class Archon extends Robot {
         int built_soldier_count=Com.getHeadcount(RobotType.SOLDIER);
         int built_builder_count=Com.getHeadcount(RobotType.BUILDER);
 
-        int ideal_soldier_count = Math.max( max_X+max_Y,Math.round(built_miner_count/2));
+        int ideal_soldier_count = Math.max((max_X+max_Y)/2,built_miner_count/8);
 
         MapLocation an_enemy=Com.getTarget(Com.ComFlag.ATTACK);
 
