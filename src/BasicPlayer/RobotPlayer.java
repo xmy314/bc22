@@ -55,7 +55,6 @@ public strictfp class RobotPlayer {
 
 
         while (true) {
-
             try {
                 me.takeTurn();
                 Clock.yield();

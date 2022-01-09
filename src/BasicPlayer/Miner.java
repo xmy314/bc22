@@ -24,7 +24,8 @@ public class Miner extends Robot {
                         ally_miner_count++;
                     }
                 }
-                if (ally_miner_count > 3) { // number of squares the robot can see over 4. 4 is number of squares a robot can mine with no rubble.
+                if (ally_miner_count >= 5) {
+                    Com.decrementHeadcount();
                     rc.disintegrate();
                 }
             }
@@ -58,9 +59,25 @@ public class Miner extends Robot {
         }
 
         if (!moved) {
-            MapLocation[] mines = rc.senseNearbyLocationsWithLead(rc.getType().visionRadiusSquared);
+            int ally_miner_count = 0;
+            int lr = 0;
+            int ud = 0;
+            for (RobotInfo nearby_unit : nearby_ally_units) {
+                if (nearby_unit.getType() == RobotType.MINER) {
+                    ally_miner_count++;
+                    lr += (me.x - nearby_unit.location.x > 0) ? 1 : -1;
+                    ud += (me.y - nearby_unit.location.y > 0) ? 1 : -1;
+                }
+            }
+            if (ally_miner_count >= 5 && (lr < -2 || lr > 2 || ud < -2 || ud > 2)) {
+                nav.navigate(me.translate((10 * lr), (10 * ud)), true);
+                moved = true;
+            }
+        }
+
+        if (!moved) {
+            MapLocation[] mines = rc.senseNearbyLocationsWithLead(10);
             if (mines.length > 0) {
-                rc.setIndicatorString("moving to ore!");
                 nav.navigate(mines[rc.getID() % mines.length], true);
                 rc.setIndicatorLine(me, mines[rc.getID() % mines.length], 10, 10, 10);
                 moved = true;
@@ -68,9 +85,7 @@ public class Miner extends Robot {
         }
 
         if (!moved && !acted) {
-            rc.setIndicatorString("moving around basically randomly!");
-            nav.disperseAround(spawn_point, 0, 100);
-            moved = true;
+            nav.disperseAround(spawn_point, 0, 400,0);
         }
     }
 }
