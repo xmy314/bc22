@@ -1,6 +1,6 @@
 package Rushy;
 
-import BasicPlayer.utils.Debug;
+import Rushy.utils.Debug;
 import battlecode.common.*;
 
 public class Miner extends Robot {
@@ -43,17 +43,15 @@ public class Miner extends Robot {
                     // Notice that the Miner's action cool down is very low.
                     // You can mine multiple times per turn!
 
-                    if (rc.canMineGold(mineLocation)) {
+                    while (rc.canMineGold(mineLocation)) {
                         rc.mineGold(mineLocation);
                         mined = true;
-                        break;
                     }
-                    if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                    while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
                         rc.mineLead(mineLocation);
                         rc.setIndicatorDot(rc.getLocation(), 0, 200, 0);
                         Debug.p("mined");
                         mined = true;
-                        break;
                     }
                 }
             }
