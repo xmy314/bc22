@@ -1,11 +1,13 @@
 package Rushy;
 
-import BasicPlayer.utils.Debug;
+import Rushy.utils.Debug;
 import battlecode.common.*;
 
 public class Archon extends Robot {
     static int ideal_miner_count;
     static int ideal_builder_count;
+
+    static int built_unit_count=0;
 
     static int build_direction_index = 0;
 
@@ -29,7 +31,9 @@ public class Archon extends Robot {
 
         tb_built=decideNext();
 
-        if (tb_built != null) {
+        int total_built_unit = Com.getHeadcount(RobotType.MINER) + Com.getHeadcount(RobotType.SOLDIER) + Com.getHeadcount(RobotType.BUILDER);
+
+        if (tb_built != null && (nearby_ally_units.length<20 || rc.getTeamLeadAmount(rc.getTeam()) - tb_built.buildCostLead > protection_level * 75) ) {
             for (int i = 0; i < 8; i++) {
                 build_direction_index = (build_direction_index + 1) % 8;
                 Direction dir = directions[build_direction_index];
@@ -61,7 +65,7 @@ public class Archon extends Robot {
             }
         }
 
-        if(built_soldier_count<ideal_soldier_count && built_miner_count>20){
+        if(built_soldier_count<ideal_soldier_count && built_miner_count>10){
             float soldier_progression =  built_soldier_count/(float) ideal_soldier_count;
             if(soldier_progression < progression ){
                 ret = RobotType.SOLDIER;

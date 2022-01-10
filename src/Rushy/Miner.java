@@ -1,10 +1,12 @@
 package Rushy;
 
+import BasicPlayer.utils.Debug;
 import battlecode.common.*;
 
 public class Miner extends Robot {
 
     int mine_over_thresh_count;
+    int ally_miner_count;
     MapLocation[] mines;
 
     public Miner(RobotController rc) throws GameActionException {
@@ -14,41 +16,55 @@ public class Miner extends Robot {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
 
-        MapLocation me = rc.getLocation();
-
-        mines = rc.senseNearbyLocationsWithLead(20,15); // any larger than some other miner can probably get to it first
+        mines = rc.senseNearbyLocationsWithLead(20); // any larger than some other miner can probably get to it first
         mine_over_thresh_count=mines.length;
 
+        ally_miner_count = 0;
+        for (RobotInfo nearby_unit : nearby_ally_units) {
+            if (nearby_unit.getType() == RobotType.MINER) {
+                ally_miner_count++;
+            }
+        }
+
         if (rc.isActionReady()) {
-            if (Com.getHeadcount(RobotType.MINER)>10 && rc.getRoundNum() < 1800) {
-                if (rc.senseLead(me) == 0) {
-                    int ally_miner_count = 0;
-                    for (RobotInfo nearby_unit : nearby_ally_units) {
-                        if (nearby_unit.getType() == RobotType.MINER) {
-                            ally_miner_count++;
-                            if (ally_miner_count >= 3*mine_over_thresh_count) {
-                                Com.decrementHeadcount();
-                                rc.disintegrate();
-                            }
-                        }
+            if (Com.getHeadcount(RobotType.MINER)>100 && rc.getRoundNum() < 1800) {
+                if (rc.senseLead(rc.getLocation()) == 0) {
+                    if (ally_miner_count >= Math.min(3,3*mine_over_thresh_count)) {
+                        Com.decrementHeadcount();
+                        rc.disintegrate();
                     }
                 }
             }
 
-            for (int dx = 0; dx < 9; dx++) {
-                MapLocation mineLocation = new MapLocation(me.x - 1 + dx / 3, me.y - 1 + dx % 3);
-                // Notice that the Miner's action cool down is very low.
-                // You can mine multiple times per turn!
+            boolean mined=false;
+            for (int dx = -1; dx <=1; dx++) {
+                for (int dy = -1; dy <=1; dy++) {
+                    MapLocation mineLocation = rc.getLocation().translate(dx,dy);
+                    // Notice that the Miner's action cool down is very low.
+                    // You can mine multiple times per turn!
 
-                if (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
-                    break;
-                }
-                if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
-                    rc.mineLead(mineLocation);
-                    break;
+                    if (rc.canMineGold(mineLocation)) {
+                        rc.mineGold(mineLocation);
+                        mined = true;
+                        break;
+                    }
+                    if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                        rc.mineLead(mineLocation);
+                        rc.setIndicatorDot(rc.getLocation(), 0, 200, 0);
+                        Debug.p("mined");
+                        mined = true;
+                        break;
+                    }
                 }
             }
+            if(!mined){
+                rc.setIndicatorDot(rc.getLocation(),0,0,200);
+                Debug.p("no mine");
+            }
+
+        }else{
+            rc.setIndicatorDot(rc.getLocation(),200,0,0);
+            Debug.p("can't mine");
         }
 
         // Try to mine on squares around it.
@@ -67,13 +83,17 @@ public class Miner extends Robot {
             return;
         }
 
+        if(ally_miner_count>2){
+            // avoid other miners.
+            nav.disperseAround(nearby_ally_units);
+        }
+
         // find a nearby mine if wasn't able to mine prior trying to move
-        if(mine_over_thresh_count>0) {
+        if(mine_over_thresh_count>ally_miner_count) {
             nav.navigate(mines[rc.getID() % mine_over_thresh_count]);
         }
 
-
-        // avoid other miners.
         nav.disperseAround(nearby_ally_units);
+
     }
 }

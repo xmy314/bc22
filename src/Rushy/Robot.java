@@ -39,6 +39,7 @@ public class Robot {
             case SOLDIER:
             case WATCHTOWER:
             case SAGE:
+            case MINER:
 //            case ARCHON:
                 smart_pathing=true;
         }
