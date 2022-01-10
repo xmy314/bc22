@@ -2,8 +2,6 @@ package BasicPlayer;
 
 import battlecode.common.*;
 
-import BasicPlayer.utils.Debug;
-
 public class Archon extends Robot {
     static int ideal_miner_count;
     static int ideal_builder_count;

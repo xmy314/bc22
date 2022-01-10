@@ -1,8 +1,8 @@
-package BasicPlayer;
+package Rushy;
 
 import battlecode.common.*;
 
-import static BasicPlayer.Robot.*;
+import static Rushy.Robot.*;
 
 public class Com {
     /*
@@ -12,7 +12,7 @@ public class Com {
     */
     static boolean death_registered = true;
 
-    public enum ComFlag {PROTECT, ATTACK, EXAMINE, SAFE}
+    public enum ComFlag {NONE,PROTECT, ATTACK, EXAMINE, SAFE}
 
     public static int typeToHeadcountIndex(RobotType t) {
         switch (t) {
@@ -69,29 +69,23 @@ public class Com {
             ComFlag v_flag = getFlag(v);
             if (v_flag == null) continue;
             MapLocation to_verify = uncompressLocation(v);
-            if (to_verify == null) continue;
+            if(!rc.canSenseLocation(to_verify))continue;
 
             switch (v_flag) {
                 case PROTECT:
-                    if (rc.canSenseLocation(to_verify)) {
-                        if (protection_level > 10) {
-                            rc.writeSharedArray(i, 0);
-                        }
+                    if (protection_level > 10) {
+                        rc.writeSharedArray(i, 0);
                     }
                     break;
                 case ATTACK:
-                    if (rc.canSenseLocation(to_verify)) {
-                        if (nearby_enemy_units.length == 0) {
-                            rc.writeSharedArray(i, (getId(ComFlag.SAFE) << 12) | (v & 4095));
-                        }
+                    if (nearby_enemy_units.length == 0) {
+                        rc.writeSharedArray(i, (getId(ComFlag.SAFE) << 12) | (v & 4095));
                     }
                 case EXAMINE:
-                    if (rc.canSenseLocation(to_verify)) {
-                        if (nearby_enemy_units.length != 0) {
-                            rc.writeSharedArray(i, (getId(ComFlag.ATTACK) << 12) | (v & 4095));
-                        } else {
-                            rc.writeSharedArray(i, (getId(ComFlag.SAFE) << 12) | (v & 4095));
-                        }
+                    if (nearby_enemy_units.length != 0) {
+                        rc.writeSharedArray(i, (getId(ComFlag.ATTACK) << 12) | (v & 4095));
+                    } else {
+                        rc.writeSharedArray(i, (getId(ComFlag.SAFE) << 12) | (v & 4095));
                     }
                     break;
             }

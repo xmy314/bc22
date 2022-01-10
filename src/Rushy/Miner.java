@@ -1,8 +1,12 @@
-package BasicPlayer;
+package Rushy;
 
 import battlecode.common.*;
 
 public class Miner extends Robot {
+
+    int mine_over_thresh_count;
+    MapLocation[] mines;
+
     public Miner(RobotController rc) throws GameActionException {
         super(rc);
     }
@@ -12,14 +16,24 @@ public class Miner extends Robot {
 
         MapLocation me = rc.getLocation();
 
+        if(rc.isActionReady()) {
+            mine_over_thresh_count=0;
+            mines = rc.senseNearbyLocationsWithLead(20); // any larger than some other miner can probably get to it first
+            for (MapLocation mine : mines) {
+                if (rc.senseLead(mine) >= 15) {
+                    mines[mine_over_thresh_count++]=mine;
+                }
+            }
+        }
+
         if (rc.isActionReady()) {
-            if (rc.getRoundNum() < 1800) {
+            if (Com.getHeadcount(RobotType.MINER)>10 && rc.getRoundNum() < 1800) {
                 if (rc.senseLead(me) == 0) {
                     int ally_miner_count = 0;
                     for (RobotInfo nearby_unit : nearby_ally_units) {
                         if (nearby_unit.getType() == RobotType.MINER) {
                             ally_miner_count++;
-                            if (ally_miner_count >= 5) {
+                            if (ally_miner_count >= 3*mine_over_thresh_count) {
                                 Com.decrementHeadcount();
                                 rc.disintegrate();
                             }
@@ -54,35 +68,19 @@ public class Miner extends Robot {
         // avoid enemy
         if (nearby_enemy_units.length != 0) {
             rc.setIndicatorString("moving away from enemy!");
-            nav.navigate(nearby_enemy_units[0].location, false);
+            MapLocation ref=nearby_enemy_units[0].getLocation();
+            MapLocation loc = rc.getLocation();
+            nav.navigate(loc.translate(loc.x-ref.x,loc.y-ref.y));
             return;
         }
 
-        // find a nearby mine if wasn't able to mine
-        if(rc.isActionReady()) {
-            MapLocation[] mines = rc.senseNearbyLocationsWithLead(10); // any larger than some other miner can probably get to it first
-            for (MapLocation mine : mines) {
-                if (rc.senseLead(mine) >= 15) {
-                    nav.navigate(mine, true);
-                    return;
-                }
-            }
+        // find a nearby mine if wasn't able to mine prior trying to move
+        if(mine_over_thresh_count>0) {
+            nav.navigate(mines[rc.getID() % mine_over_thresh_count]);
         }
 
+
         // avoid other miners.
-        int ally_miner_count = 0;
-        int lr = 0;
-        int ud = 0;
-        for (int i=0;i<nearby_ally_units.length&&Clock.getBytecodesLeft()>750;i++) {
-            RobotInfo nearby_unit = nearby_ally_units[i];
-            if (nearby_unit.getType() == RobotType.MINER) {
-                ally_miner_count++;
-                lr += (rc.getLocation().x > nearby_unit.location.x ) ? 1 : -1;
-                ud += (rc.getLocation().y > nearby_unit.location.y ) ? 1 : -1;
-            }
-        }
-        if (ally_miner_count >= 5 && (lr < -2 || lr > 2 || ud < -2 || ud > 2)) {
-            nav.navigate(rc.getLocation().translate((10 * lr), (10 * ud)), true);
-        }
+        nav.disperseAround(nearby_ally_units);
     }
 }

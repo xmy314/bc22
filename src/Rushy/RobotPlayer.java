@@ -1,4 +1,4 @@
-package BasicPlayer;
+package Rushy;
 
 import battlecode.common.Clock;
 import battlecode.common.Direction;

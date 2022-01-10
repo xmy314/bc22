@@ -1,6 +1,5 @@
 package BasicPlayer;
 
-import BasicPlayer.utils.Debug;
 import battlecode.common.*;
 
 public class Soldier extends Robot {
