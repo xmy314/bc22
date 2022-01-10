@@ -1775,9 +1775,10 @@ public class Nav {
         int ally_unit_count = 0;
         int lr = 0;
         int ud = 0;
+        RobotType tb_avoid = rc.getType();
         for (int i = 0; i < nearby_ally_units.length && Clock.getBytecodesLeft() > 750; i++) {
             RobotInfo nearby_unit = nearby_ally_units[i];
-            if (nearby_unit.getType() == RobotType.MINER) {
+            if (nearby_unit.getType() == tb_avoid) {
                 ally_unit_count++;
                 lr += (rc.getLocation().x > nearby_unit.location.x) ? 1 : -1;
                 ud += (rc.getLocation().y > nearby_unit.location.y) ? 1 : -1;

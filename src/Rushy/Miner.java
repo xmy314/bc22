@@ -16,15 +16,8 @@ public class Miner extends Robot {
 
         MapLocation me = rc.getLocation();
 
-        if(rc.isActionReady()) {
-            mine_over_thresh_count=0;
-            mines = rc.senseNearbyLocationsWithLead(20); // any larger than some other miner can probably get to it first
-            for (MapLocation mine : mines) {
-                if (rc.senseLead(mine) >= 15) {
-                    mines[mine_over_thresh_count++]=mine;
-                }
-            }
-        }
+        mines = rc.senseNearbyLocationsWithLead(20,15); // any larger than some other miner can probably get to it first
+        mine_over_thresh_count=mines.length;
 
         if (rc.isActionReady()) {
             if (Com.getHeadcount(RobotType.MINER)>10 && rc.getRoundNum() < 1800) {
