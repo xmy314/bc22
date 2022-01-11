@@ -1,9 +1,8 @@
-package Rushy;
+package Rushy_v1;
 
-import Rushy.utils.Debug;
 import battlecode.common.*;
 
-import static Rushy.Robot.*;
+import static Rushy_v1.Robot.*;
 
 public class Nav {
     RobotController rc;
@@ -1756,7 +1755,6 @@ public class Nav {
 
     public boolean navigate(MapLocation reference) throws GameActionException {
         if (!rc.isMovementReady()) {return false;}
-        if(debugOn) rc.setIndicatorLine(rc.getLocation(),reference,100,120,110);
 
         Direction bestDir = (smartness)?BFSTo(reference):rc.getLocation().directionTo(reference);
         if(bestDir!=null) { // TODO: i don't get why it might be null.
@@ -1766,29 +1764,27 @@ public class Nav {
         }
     }
 
-    public boolean disperseAround(RobotInfo[] nearby_ally_units) throws GameActionException {
+    public MapLocation disperseAround(RobotInfo[] nearby_ally_units) {
         // un predicable;
-        if (!rc.isMovementReady()) return false;
 
-        int ally_unit_count = 0;
         int lr = 0;
         int ud = 0;
+
         RobotType tb_avoid = rc.getType();
-        for (int i = 0; i < nearby_ally_units.length && Clock.getBytecodesLeft() > 750; i++) {
+        for (int i = 0; i < nearby_ally_units.length && Clock.getBytecodesLeft() > 2000; i++) {
             RobotInfo nearby_unit = nearby_ally_units[i];
             if (nearby_unit.getType() == tb_avoid) {
-                ally_unit_count++;
                 lr += (rc.getLocation().x > nearby_unit.location.x) ? 1 : -1;
                 ud += (rc.getLocation().y > nearby_unit.location.y) ? 1 : -1;
             }
         }
-        if (lr != 2 || ud !=0) {
-            last_avoidance_target=rc.getLocation().translate((10 * lr), (10 * ud));
-            return navigate(last_avoidance_target);
-        }else if (last_avoidance_target!=null){
-            return navigate(last_avoidance_target);
+
+        if (lr != 0 || ud !=0) {
+            last_avoidance_target=rc.getLocation().translate((5 * lr), (5 * ud));
+            return last_avoidance_target;
         }
-        return false;
+
+        return last_avoidance_target;
     }
 
     public static MapLocation rotateAround(MapLocation origin, MapLocation toRotate, float offset) {

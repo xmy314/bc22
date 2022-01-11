@@ -1,39 +1,27 @@
-package Rushy;
+package Rushy_v1;
 
-import Rushy.utils.Debug;
 import battlecode.common.*;
 
 public class Archon extends Robot {
     static int ideal_miner_count;
     static int ideal_builder_count;
 
-    static int built_unit_count=0;
-
     static int build_direction_index = 0;
 
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
         ideal_miner_count = Math.max(100,max_X * max_Y / (4)); // 4 for 5/turn/square. another 2 to share the area.
-        ideal_builder_count= Math.min((max_Y+max_X),40*rc.getArchonCount());
+        ideal_builder_count= 2 * Math.min((max_Y+max_X),40*rc.getArchonCount());
     }
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         // stuff that this type of bot does.
 
-        MapLocation me = rc.getLocation();
+        RobotType tb_built = decideNext();
 
-        if (protection_level < 10) {
-            Com.setTarget(Com.ComFlag.PROTECT, rc.getLocation());
-        }
 
-        RobotType tb_built = null;
-
-        tb_built=decideNext();
-
-        int total_built_unit = Com.getHeadcount(RobotType.MINER) + Com.getHeadcount(RobotType.SOLDIER) + Com.getHeadcount(RobotType.BUILDER);
-
-        if (tb_built != null && (nearby_ally_units.length<20 || rc.getTeamLeadAmount(rc.getTeam()) - tb_built.buildCostLead > protection_level * 75) ) {
+        if (tb_built != null) {
             for (int i = 0; i < 8; i++) {
                 build_direction_index = (build_direction_index + 1) % 8;
                 Direction dir = directions[build_direction_index];
@@ -46,7 +34,7 @@ public class Archon extends Robot {
     }
 
     private RobotType decideNext() throws GameActionException{
-        MapLocation an_enemy=Com.getTarget(Com.ComFlag.ATTACK);
+        MapLocation an_enemy=Com.getTarget(0b001);
 
         int built_miner_count  = Com.getHeadcount(RobotType.MINER);
         int built_soldier_count=Com.getHeadcount(RobotType.SOLDIER);

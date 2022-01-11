@@ -4,6 +4,8 @@ import battlecode.common.*;
 
 public class Soldier extends Robot {
 
+    MapLocation target_location;
+
     public Soldier(RobotController rc) throws GameActionException {
         super(rc);
     }
@@ -20,54 +22,42 @@ public class Soldier extends Robot {
                 rc.attack(toAttack);
             }
             nav.navigate(toAttack);
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
+        } else{
+            // check if there is any mission by communication
+            if(target_location!=null){
+                if (rc.canSenseLocation(target_location) && nearby_enemy_units.length==0 ){
+                    target_location=null;
+                }
             }
-        } else {
-            safeMovement();
-        }
-    }
 
-    public void safeMovement() throws GameActionException {
-        if (consistent_target != null) {
-            consistent_rounds++;
-        }
-
-        if (!rc.isMovementReady()) return;
-
-        if (consistent_target != null && debugOn) {
-            rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 0, 0);
-        }
-
-        // check if there is any mission by communication
-        if (consistent_target != null) {
-            if (rc.getLocation().isWithinDistanceSquared(consistent_target, 13) || consistent_rounds >= 30 || is_target_from_com && (Com.getFlags(consistent_target) & 0b101) == 0) {
-                consistent_target = null;
-                consistent_rounds = 0;
-                is_target_from_com = false;
+            if (target_location==null) {
+                if (Com.getHeadcount(RobotType.SOLDIER) < 20) {
+                    switch (rc.getID() % 3) {
+                        case 0:
+                            target_location = new MapLocation(max_X - spawn_point.x, max_Y - spawn_point.y);
+                            break;
+                        case 1:
+                            target_location = new MapLocation(max_X - spawn_point.x, spawn_point.y);
+                            break;
+                        case 2:
+                            target_location = new MapLocation(spawn_point.x, max_Y - spawn_point.y);
+                            break;
+                    }
+                }
             }
-        }
 
-        if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b001); // military support
-            if (consistent_target != null) {
-                is_target_from_com = true;
+            if(target_location==null){
+                target_location = Com.getTarget(Com.ComFlag.ATTACK);
+                if (target_location != null) {
+                    if(debugOn) rc.setIndicatorString("attacking!" + target_location);
+                }
             }
-        }
 
-        if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b100); // pioneer
-            if (consistent_target != null) {
-                is_target_from_com = true;
+            if(target_location!=null) {
+                nav.navigate(target_location);
+            }else{
+                nav.disperseAround(nearby_ally_units);
             }
-        }
-
-        if (consistent_target == null) {
-            consistent_target = nav.disperseAround(nearby_ally_units);
-        }
-
-        if (consistent_target != null) {
-            nav.navigate(consistent_target);
         }
     }
 }
