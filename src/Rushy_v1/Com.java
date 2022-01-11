@@ -46,6 +46,8 @@ public class Com {
                 return 1;
             case BUILDER:
                 return 2;
+            case WATCHTOWER:
+                return 3;
         }
         return -1;
     }
@@ -103,7 +105,7 @@ public class Com {
         return getFlags(loc.x / chunk_width, loc.y / chunk_height);
     }
 
-    public static MapLocation getTarget(int read_mask) throws GameActionException {
+    public static MapLocation getTarget(int read_mask, int data_mask) throws GameActionException {
         // read mask is to only get location with that flag mask
 
         int current_chunk_x = rc.getLocation().x / chunk_width;
@@ -123,7 +125,7 @@ public class Com {
                 chunk_y = current_chunk_y + d - off;
 
                 if (chunk_x >= 0 && chunk_y < 8 && chunk_y * chunk_height < max_Y) {
-                    if ((getFlags(chunk_x, chunk_y) & read_mask) != 0) {
+                    if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
                         if (avoidance_counter == 0) {
                             return getChunkCenter(chunk_x, chunk_y);
                         } else {
@@ -136,7 +138,7 @@ public class Com {
                 chunk_x = current_chunk_x + d - off;
                 chunk_y = current_chunk_y + off;
                 if (chunk_x < 8 && chunk_y < 8 && chunk_x * chunk_width < max_X && chunk_y * chunk_height < max_Y) {
-                    if ((getFlags(chunk_x, chunk_y) & read_mask) != 0) {
+                    if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
                         if (avoidance_counter == 0) {
                             return getChunkCenter(chunk_x, chunk_y);
                         } else {
@@ -149,7 +151,7 @@ public class Com {
                 chunk_x = current_chunk_x + off;
                 chunk_y = current_chunk_y + off - d;
                 if (chunk_x < 8 && chunk_y >= 0 && chunk_x * chunk_width < max_X) {
-                    if ((getFlags(chunk_x, chunk_y) & read_mask) != 0) {
+                    if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
                         if (avoidance_counter == 0) {
                             return getChunkCenter(chunk_x, chunk_y);
                         } else {
@@ -162,7 +164,7 @@ public class Com {
                 chunk_x = current_chunk_x + off - d;
                 chunk_y = current_chunk_y - off;
                 if (chunk_x >= 0 && chunk_y >= 0) {
-                    if ((getFlags(chunk_x, chunk_y) & read_mask) != 0) {
+                    if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
                         if (avoidance_counter == 0) {
                             return getChunkCenter(chunk_x, chunk_y);
                         } else {

@@ -14,9 +14,8 @@ public class Miner extends Robot {
         action();
 
         // if there is mine, don't move yet.
-        if(rc.isActionReady()) {
-            movement();
-        }
+        // movement is really important for miner. even not stopping for mine is worth it.
+        movement();
     }
 
     public void action() throws GameActionException {
@@ -70,24 +69,24 @@ public class Miner extends Robot {
             }
         }
 
-        // avoid enemy
-        if (threat_level != 0) {
-            MapLocation ref = nearby_enemy_units[0].getLocation();
-            MapLocation loc = rc.getLocation();
-            consistent_target = loc.translate(loc.x - ref.x, loc.y - ref.y);
-        }
-
         if (consistent_target == null) {
             if (ally_miner_count > 5 || Com.getHeadcount(RobotType.MINER)<20) {
-                consistent_target = Com.getTarget(0b100); // pioneer
+                consistent_target = Com.getTarget(0b101,0b100); // pioneer, but don't run to enemy
                 if (consistent_target != null) {
                     is_target_from_com = true;
                 }
             }
         }
 
+        // find a nearby mine if wasn't able to mine prior trying to move
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b010); // mine
+            if (mine_over_thresh_count > ally_miner_count) {
+                consistent_target = mines[rc.getID() % mine_over_thresh_count];
+            }
+        }
+
+        if (consistent_target == null) {
+            consistent_target = Com.getTarget(0b011,0b011); // mine, but don't bother about enemy
             if (consistent_target != null) {
                 is_target_from_com = true;
             }
@@ -97,13 +96,6 @@ public class Miner extends Robot {
             if (ally_miner_count > 2) {
                 // avoid other miners.
                 consistent_target = nav.disperseAround(nearby_ally_units);
-            }
-        }
-
-        // find a nearby mine if wasn't able to mine prior trying to move
-        if (consistent_target == null) {
-            if (mine_over_thresh_count > ally_miner_count) {
-                consistent_target = mines[rc.getID() % mine_over_thresh_count];
             }
         }
 

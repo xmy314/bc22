@@ -49,14 +49,14 @@ public class Soldier extends Robot {
         }
 
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b001); // military support
+            consistent_target = Com.getTarget(0b001,0b001); // military support
             if (consistent_target != null) {
                 is_target_from_com = true;
             }
         }
 
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b100); // pioneer
+            consistent_target = Com.getTarget(0b100,0b100); // pioneer
             if (consistent_target != null) {
                 is_target_from_com = true;
             }

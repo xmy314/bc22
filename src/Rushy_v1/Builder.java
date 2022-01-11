@@ -13,12 +13,13 @@ public class Builder extends Robot {
         super.takeTurn();
         // stuff that this type of bot does.
 
-        if (current_project == null && (nearby_ally_units.length > 16 || (rc.getLocation().x & rc.getLocation().y & 1) != 1)) {
+        if (current_project == null && (nearby_ally_units.length > 30 || (rc.getLocation().x & rc.getLocation().y & 1) != 1)) {
             if(debugOn) rc.setIndicatorString("trying to move");
             movement();
         } else {
             action();
         }
+
     }
 
     public void action() throws GameActionException {
@@ -84,8 +85,15 @@ public class Builder extends Robot {
             }
         }
 
+        if(consistent_target == null) {
+            consistent_target = Com.getTarget(0b101,0b100); // find a place with no friendly units and no enemy.
+            if (consistent_target != null) {
+                is_target_from_com = true;
+            }
+        }
+
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b100); // pioneer/ find some deserted place.
+            consistent_target = Com.getTarget(0b001,0b000); // find a place with no enemy.
             if (consistent_target != null) {
                 is_target_from_com = true;
             }

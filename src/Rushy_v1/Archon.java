@@ -34,19 +34,21 @@ public class Archon extends Robot {
     }
 
     private RobotType decideNext() throws GameActionException{
-        MapLocation an_enemy=Com.getTarget(0b001);
+        MapLocation an_enemy=Com.getTarget(0b001,0b001);
 
         int built_miner_count  = Com.getHeadcount(RobotType.MINER);
         int built_soldier_count=Com.getHeadcount(RobotType.SOLDIER);
         int built_builder_count=Com.getHeadcount(RobotType.BUILDER);
+        int built_watch_tower_count = Com.getHeadcount(RobotType.WATCHTOWER);
 
         int ideal_soldier_count = Math.max((max_X+max_Y)/2,built_miner_count/4)*((an_enemy!=null)?4:1);
 
         RobotType ret = null;
-        float progression = 100f;
+        float progression = 1;
 
         if(built_miner_count<ideal_miner_count) {
-            float miner_progression = built_miner_count/(float) ideal_miner_count;
+            // if there is enough lead, less focus on miner
+            float miner_progression = ((rc.getTeamLeadAmount(rc.getTeam())>10000)?2:1)*built_miner_count/(float) ideal_miner_count;
             if(miner_progression < progression ){
                 ret = RobotType.MINER;
                 progression = miner_progression;
@@ -54,7 +56,8 @@ public class Archon extends Robot {
         }
 
         if(built_soldier_count<ideal_soldier_count && built_miner_count>10){
-            float soldier_progression =  built_soldier_count/(float) ideal_soldier_count;
+            // if there is a strong enough group of watch tower, build less soldiers
+            float soldier_progression =  (built_watch_tower_count>50?2:1)*built_soldier_count/(float) ideal_soldier_count;
             if(soldier_progression < progression ){
                 ret = RobotType.SOLDIER;
                 progression = soldier_progression;
