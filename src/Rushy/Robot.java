@@ -31,6 +31,15 @@ public class Robot {
     static int protection_level;
     static int threat_level;
 
+    // just for miners
+    static int mine_over_thresh_count;
+    static int ally_miner_count;
+    static MapLocation[] mines;
+
+    static MapLocation consistent_target;
+    static int consistent_rounds;
+    static boolean is_target_from_com=false;
+
 
     public Robot(RobotController r) throws GameActionException {
         rc = r;
@@ -43,10 +52,13 @@ public class Robot {
 //            case ARCHON:
                 smart_pathing=true;
         }
+
         nav = new Nav(r,smart_pathing);
 
         max_X = rc.getMapWidth();
         max_Y = rc.getMapHeight();
+
+        Com.init();
 
         spawn_point = rc.getLocation();
 
@@ -86,20 +98,30 @@ public class Robot {
                     }
                     break;
                 case ARCHON:
-                    Com.setTarget(Com.ComFlag.ATTACK,nearby_unit.location);
+                    Com.setTarget(0b001,0b001,nearby_unit.location);
                     break;
             }
         }
 
-        if (threat_level > 0 && protection_level<10) {
-            Com.setTarget(Com.ComFlag.ATTACK, nearby_enemy_units[0].getLocation());
+        if(rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE) {
+            mines = rc.senseNearbyLocationsWithLead(20, 15); // any larger than some other miner can probably get to it first
+            mine_over_thresh_count = mines.length;
+
+            ally_miner_count = 0;
+            for (RobotInfo nearby_unit : nearby_ally_units) {
+                if (nearby_unit.getType() == RobotType.MINER) {
+                    ally_miner_count++;
+                }
+            }
         }
+
 
         Com.verifyTargets();
 
-        if(nearby_enemy_units.length!=0&&rc.getHealth()<=10){
+        if(rc.getHealth()<=5*threat_level){
             Com.decrementHeadcount();
         }
+
     }
 
     public static int getAttackPriority(RobotType rt) {

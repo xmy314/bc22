@@ -3,7 +3,7 @@ package Rushy;
 import battlecode.common.*;
 
 public class Builder extends Robot {
-    RobotInfo current_project=null;
+    RobotInfo current_project = null;
 
     public Builder(RobotController rc) throws GameActionException {
         super(rc);
@@ -13,43 +13,90 @@ public class Builder extends Robot {
         super.takeTurn();
         // stuff that this type of bot does.
 
-        if(rc.getLocation().distanceSquaredTo(spawn_point)<9) {
+        if (current_project == null && (nearby_ally_units.length > 16 || (rc.getLocation().x & rc.getLocation().y & 1) != 1)) {
             rc.setIndicatorString("trying to move");
-            nav.disperseAround(nearby_ally_units);// entire map;
-        }else {
-            rc.setIndicatorString("trying to build");
-            if (current_project != null) {
-                current_project = rc.senseRobotAtLocation(current_project.location);
-                if (current_project != null && current_project.mode != RobotMode.PROTOTYPE) {
-                    current_project = null;
+            movement();
+        } else {
+            action();
+        }
+    }
+
+    public void action() throws GameActionException {
+        rc.setIndicatorString("trying to build");
+        if (current_project != null) {
+            current_project = rc.senseRobotAtLocation(current_project.location);
+            if (current_project != null && current_project.mode != RobotMode.PROTOTYPE) {
+                current_project = null;
+            }
+        }
+
+        if (current_project == null) {
+            RobotInfo[] units_in_action_range = rc.senseNearbyRobots(5, rc.getTeam());
+            for (RobotInfo unit : units_in_action_range) {
+                if (unit.mode == RobotMode.PROTOTYPE) {
+                    current_project = unit;
+                    break;
                 }
             }
+        }
 
-            if (current_project == null) {
-                RobotInfo[] units_in_action_range = rc.senseNearbyRobots(5, rc.getTeam());
-                for (RobotInfo unit : units_in_action_range) {
-                    if (unit.mode == RobotMode.PROTOTYPE) {
-                        current_project = unit;
+        if (current_project == null) {
+            if (rc.getTeamLeadAmount(rc.getTeam()) > 180) {
+                for (Direction direction : directions) {
+                    if (rc.canBuildRobot(RobotType.WATCHTOWER, direction)) {
+                        rc.buildRobot(RobotType.WATCHTOWER, direction);
+                        current_project = rc.senseRobotAtLocation(rc.adjacentLocation(direction));
                         break;
                     }
                 }
             }
+        }
 
-            if (current_project != null) {
-                if (rc.canRepair(current_project.location)) {
-                    rc.repair(current_project.location);
-                }
-            } else {
-                if (rc.getTeamLeadAmount(rc.getTeam()) > 180) {
-                    for (Direction direction : directions) {
-                        if (rc.canBuildRobot(RobotType.WATCHTOWER, direction)) {
-                            rc.buildRobot(RobotType.WATCHTOWER, direction);
-                            current_project = rc.senseRobotAtLocation(rc.adjacentLocation(direction));
-                            break;
-                        }
-                    }
-                }
+        if (current_project != null) {
+            if (rc.canRepair(current_project.location)) {
+                rc.repair(current_project.location);
             }
+        }
+    }
+
+    public void movement() throws GameActionException {
+        if (consistent_target != null) {
+            consistent_rounds++;
+        }
+
+        if (!rc.isMovementReady()) return;
+
+        if (consistent_target != null && debugOn) {
+            rc.setIndicatorLine(rc.getLocation(), consistent_target, 0, 0, 200);
+        }
+
+        if (consistent_target != null) {
+            if (rc.getLocation().isWithinDistanceSquared(consistent_target, 2) || consistent_rounds >= 30 || is_target_from_com && (Com.getFlags(consistent_target) & 0b100) == 0) {
+                consistent_target = null;
+                consistent_rounds = 0;
+                is_target_from_com = false;
+            }
+        }
+
+        if (consistent_target == null) {
+            if (nearby_ally_units.length > 10) {
+                consistent_target = nav.disperseAround(nearby_ally_units);
+            }
+        }
+
+        if (consistent_target == null) {
+            consistent_target = Com.getTarget(0b100); // pioneer/ find some deserted place.
+            if (consistent_target != null) {
+                is_target_from_com = true;
+            }
+        }
+
+        if (consistent_target == null) {
+            consistent_target = nav.disperseAround(nearby_ally_units);
+        }
+
+        if (consistent_target != null) {
+            nav.navigate(consistent_target);
         }
     }
 }

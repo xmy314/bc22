@@ -14,12 +14,12 @@ public class Watchtower extends Robot {
         super.takeTurn();
         // stuff that this type of bot does.
 
-        if(rc.getRoundNum() % 100 == 0){
+        if(rc.getRoundNum() % 100 == rc.getID()%100){
             moved_for_attack=0;
         }
 
-        int move_threshold_round=3;
-        int move_threshold_protection = 2;
+        int move_threshold_round=2;
+        int move_threshold_protection = 3;
 
         if(nearby_enemy_units.length>0){
             // if it should push, push.
@@ -48,35 +48,57 @@ public class Watchtower extends Robot {
             }
         }else{
             // in the safe zone, make sure minimum protect exists and continue walking.
-            if(rc.getMode()==RobotMode.PORTABLE && protection_level<=move_threshold_protection){
-                if(rc.isTransformReady()){
-                    rc.transform();
-                }
-            }else if(rc.getMode()==RobotMode.TURRET && protection_level>move_threshold_protection){
+            if(rc.getMode()==RobotMode.TURRET){
                 if(rc.isTransformReady()){
                     rc.transform();
                 }
             }else{
-                MapLocation target = Com.getTarget(Com.ComFlag.ATTACK);
-                if (target != null) {
-                    nav.navigate(target);
-                    return;
-                }
-
-                target = Com.getTarget(Com.ComFlag.EXAMINE);
-                if (target != null) {
-                    nav.navigate(target);
-                    return;
-                }
-
-                if(rc.getID()%3==0) {
-                    nav.navigate(new MapLocation(max_X-spawn_point.x,spawn_point.y));
-                }else if(rc.getID()%3==1){
-                    nav.navigate(new MapLocation(spawn_point.x,max_Y-spawn_point.y));
-                }else{
-                    nav.navigate(new MapLocation(max_X-spawn_point.x,max_Y-spawn_point.y));
-                }
+                safeMovement();
             }
         }
     }
+
+    public void safeMovement() throws GameActionException{
+        if(consistent_target!=null) {
+            consistent_rounds++;
+        }
+
+        if(!rc.isMovementReady()) return;
+
+        if(consistent_target!=null && debugOn){
+            rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 0, 0);
+        }
+
+        // check if there is any mission by communication
+        if(consistent_target!=null){
+            if (rc.getLocation().isWithinDistanceSquared(consistent_target,13) || consistent_rounds>=30 || is_target_from_com && (Com.getFlags(consistent_target)&0b101)==0){
+                consistent_target=null;
+                consistent_rounds=0;
+                is_target_from_com=false;
+            }
+        }
+
+        if(consistent_target == null) {
+            consistent_target = Com.getTarget(0b001); // military support
+            if (consistent_target!=null) {
+                is_target_from_com = true;
+            }
+        }
+
+        if(consistent_target == null) {
+            consistent_target = Com.getTarget(0b100); // pioneer
+            if (consistent_target!=null) {
+                is_target_from_com = true;
+            }
+        }
+
+        if(consistent_target == null) {
+            consistent_target = nav.disperseAround(nearby_ally_units);
+        }
+
+        if (consistent_target != null) {
+            nav.navigate(consistent_target);
+        }
+    }
+
 }
