@@ -14,14 +14,17 @@ public class Soldier extends Robot {
         // Try to attack someone
 
         if (nearby_enemy_units.length > 0) {
-            MapLocation toAttack = decideTarget(nearby_enemy_units).location;
-
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
-            }
-            nav.navigate(toAttack);
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
+            MapLocation toAttack = chooseAttackTarget(nearby_enemy_units).location;
+            if(protection_level>threat_level) {
+                nav.optimalPlacementAround(toAttack, 13);
+                if (rc.canAttack(toAttack)) {
+                    rc.attack(toAttack);
+                }
+            }else{
+                if (rc.canAttack(toAttack)) {
+                    rc.attack(toAttack);
+                }
+                nav.navigate(spawn_point);
             }
         } else {
             safeMovement();

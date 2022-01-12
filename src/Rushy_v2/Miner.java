@@ -2,6 +2,8 @@ package Rushy_v2;
 
 import battlecode.common.*;
 
+import java.util.Map;
+
 public class Miner extends Robot {
 
     public Miner(RobotController rc) throws GameActionException {
@@ -13,13 +15,14 @@ public class Miner extends Robot {
 
         action();
 
-        // if there is mine, don't move yet.
-        // movement is really important for miner. even not stopping for mine is worth it.
-        movement();
+        if(rc.isActionReady()) {
+            movement();
+        }
     }
 
     public void action() throws GameActionException {
         if (!rc.isActionReady()) return;
+        if (mine_over_thresh_count==0) return;
 
         if (Com.getHeadcount(RobotType.MINER) > 30 && rc.getRoundNum() < 1800) {
             if (rc.senseLead(rc.getLocation()) == 0) {
@@ -28,6 +31,20 @@ public class Miner extends Robot {
                     rc.disintegrate();
                 }
             }
+        }
+
+        int closest_dist = 100;
+        MapLocation closest_mine=null;
+        for(int i=0;i<mine_over_thresh_count;i++){
+            int n_dist = rc.getLocation().distanceSquaredTo(mines[i]);
+            if(n_dist<closest_dist){
+                closest_dist=n_dist;
+                closest_mine=mines[i];
+            }
+        }
+
+        if (closest_dist<=2){
+            nav.optimalPlacementAround(closest_mine,2);
         }
 
         for (int dx = -1; dx <= 1; dx++) {
@@ -39,7 +56,7 @@ public class Miner extends Robot {
                 while (rc.canMineGold(mineLocation)) {
                     rc.mineGold(mineLocation);
                 }
-                while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                while (rc.canMineLead(mineLocation) && (rc.senseLead(mineLocation) > 1 || (enemy_archon_in_sight && !ally_archon_in_sight)  )) {
                     rc.mineLead(mineLocation);
                 }
                 if (!rc.isActionReady()) {
@@ -69,7 +86,12 @@ public class Miner extends Robot {
             }
         }
 
-
+        // find a nearby mine if wasn't able to mine prior trying to move
+        if (consistent_target == null) {
+            if (mine_over_thresh_count > ally_miner_count) {
+                consistent_target = mines[rc.getID() % mine_over_thresh_count];
+            }
+        }
 
         if (consistent_target == null) {
             if (ally_miner_count > 5 || Com.getHeadcount(RobotType.MINER)<20) {
@@ -80,12 +102,6 @@ public class Miner extends Robot {
             }
         }
 
-        // find a nearby mine if wasn't able to mine prior trying to move
-        if (consistent_target == null) {
-            if (mine_over_thresh_count > ally_miner_count) {
-                consistent_target = mines[rc.getID() % mine_over_thresh_count];
-            }
-        }
 
         if (consistent_target == null) {
             consistent_target = Com.getTarget(0b011,0b010,4); // mine, don't run to enemy

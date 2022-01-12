@@ -30,6 +30,8 @@ public class Robot {
 
     static int protection_level;
     static int threat_level;
+    static boolean ally_archon_in_sight;
+    static boolean enemy_archon_in_sight;
 
     // just for miners
     static int mine_over_thresh_count;
@@ -72,6 +74,7 @@ public class Robot {
         nearby_enemy_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
 
         protection_level=0;
+        ally_archon_in_sight=false;
         for (RobotInfo nearby_unit : nearby_ally_units) {
             switch (nearby_unit.getType()){
                 case SOLDIER:
@@ -82,10 +85,14 @@ public class Robot {
                         protection_level++;
                     }
                     break;
+                case ARCHON:
+                    ally_archon_in_sight = true;
+                    break;
             }
         }
 
         threat_level=0;
+        enemy_archon_in_sight = false;
         for (RobotInfo nearby_unit : nearby_enemy_units) {
             switch (nearby_unit.getType()){
                 case SOLDIER:
@@ -98,12 +105,13 @@ public class Robot {
                     break;
                 case ARCHON:
                     Com.setTarget(0b001,0b001,nearby_unit.location);
+                    enemy_archon_in_sight=true;
                     break;
             }
         }
 
         if(rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE) {
-            mines = rc.senseNearbyLocationsWithLead(20, 15); // any larger than some other miner can probably get to it first
+            mines = rc.senseNearbyLocationsWithLead(20, 6); // any larger than some other miner can probably get to it first
             mine_over_thresh_count = mines.length;
 
             ally_miner_count = 0;
@@ -142,12 +150,11 @@ public class Robot {
         }
     }
 
-    public static RobotInfo decideTarget(RobotInfo[] enemies) {
+    public static RobotInfo chooseAttackTarget(RobotInfo[] enemies) {
         int record_priority = getAttackPriority(enemies[0].getType());
         int tie_breaker_health = enemies[0].getHealth();
         RobotInfo current_target = enemies[0];
         for (int i = 1; i < enemies.length; i++) {
-            if(nearby_enemy_units[i].getLocation().distanceSquaredTo(rc.getLocation())>rc.getType().actionRadiusSquared)continue;
             int priority = getAttackPriority(enemies[i].getType());
             if (priority > record_priority || priority == record_priority && enemies[i].getHealth() < tie_breaker_health) {
                 current_target = enemies[i];

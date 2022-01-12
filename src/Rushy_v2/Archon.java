@@ -10,8 +10,8 @@ public class Archon extends Robot {
 
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
-        ideal_miner_count = Math.max(100,max_X * max_Y / (4)); // 4 for 5/turn/square. another 2 to share the area.
-        ideal_builder_count= 2 * Math.min((max_Y+max_X),40*rc.getArchonCount());
+        ideal_miner_count = Math.max(40,(max_X * max_Y) / 16); // 16 for 13/turn/square.
+        ideal_builder_count= 2 * Math.min((max_Y+max_X),10*rc.getArchonCount());
     }
 
     public void takeTurn() throws GameActionException {
@@ -47,19 +47,19 @@ public class Archon extends Robot {
     }
 
     private RobotType decideNext() throws GameActionException{
-        MapLocation an_enemy=Com.getTarget(0b001,0b001,4);
+        MapLocation an_enemy=Com.getTarget(0b001,0b001,8);
 
         int built_miner_count  = Com.getHeadcount(RobotType.MINER);
         int built_soldier_count=Com.getHeadcount(RobotType.SOLDIER);
         int built_builder_count=Com.getHeadcount(RobotType.BUILDER);
         int built_watch_tower_count = Com.getHeadcount(RobotType.WATCHTOWER);
 
-        int ideal_soldier_count = Math.max((max_X+max_Y)/2,built_miner_count/2)*((an_enemy!=null)?4:1);
+        int ideal_soldier_count = Math.max((max_X+max_Y),rc.getRoundNum()/10);
 
         RobotType ret = null;
-        float progression = 1;
+        float progression = 10;
 
-        if(built_miner_count<ideal_miner_count) {
+        if(built_miner_count<10*ideal_miner_count) {
             float miner_progression = built_miner_count/(float) ideal_miner_count;
             if(miner_progression < progression ){
                 ret = RobotType.MINER;
@@ -67,7 +67,7 @@ public class Archon extends Robot {
             }
         }
 
-        if(built_soldier_count<ideal_soldier_count && (built_miner_count>10) ){
+        if(built_soldier_count<10*ideal_soldier_count ){
             float soldier_progression =  built_soldier_count/(float) ideal_soldier_count;
             if(soldier_progression < progression ){
                 ret = RobotType.SOLDIER;
@@ -75,7 +75,7 @@ public class Archon extends Robot {
             }
         }
 
-        if(built_builder_count<ideal_builder_count && (built_soldier_count + built_watch_tower_count>20 || rc.getTeamLeadAmount(rc.getTeam())>1000)  ){
+        if(built_builder_count<10*ideal_builder_count && (built_soldier_count + built_watch_tower_count>20 || rc.getTeamLeadAmount(rc.getTeam())>1000)  ){
             float builder_progression = built_builder_count/(float) ideal_builder_count;
             if(builder_progression < progression ){
                 ret = RobotType.BUILDER;

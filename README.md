@@ -35,22 +35,37 @@ This is the Battlecode 2022 scaffold, containing an `examplefuncsplayer`. Read h
 
 
 BasicPlayer is the base model to get started.
-    uses a flawed lead farm strategy.
+* uses a flawed lead farm strategy.
 
 Rushy is a modified version of BasicPlayer.
-    modified econ logic to be more offensive and anti-rush at the beginning. not good though. goes to lead farming after a bit.
-    adapted to the meta of unrolling loops for path finding. got vision radius squared 20 breadth first to 1500-3000 bytecode.
-    realize that miners can mine multiple times per turn.
+* modified econ logic to be more offensive and anti-rush at the beginning. not good though. goes to lead farming after a bit.
+* adapted to the meta of unrolling loops for path finding. got vision radius squared 20 breadth first to 1500-3000 bytecode.
+* realize that miners can mine multiple times per turn.
 
 Rushy_v1 is an improved version Rushy.
-    Major upgrade to the communication system:
-        Old system:
-            stores 10 coordinates of speciality, and 4 bits for each coordinate.
-        New system:
-            divides the map into 64 chunks and store 4 bit of information for each.
-        Benefit:
-            miners and soldiers are way more active explores which benefits early stage economy.
-            soldiers and miners are better at coordinated movements.
-    Unit now memorizes their target for a while to avoid moving back and forth. (not perfect)
+* Major upgrade to the communication system:
+  * Old system:
+    * Stores 10 coordinates of speciality, and 4 bits for each coordinate.
+  * New system:
+    * divides the map into 64 chunks and store 4 bit of information for each.
+  * Benefit:
+    * miners and soldiers are way more active explores which benefits early stage economy.
+    * soldiers and miners are better at coordinated movements.
+* Unit now memorizes their target for a while to avoid moving back and forth. (not perfect)
 
-        
+Rushy_v2 is an improved version Rushy_v1.
+* Major upgrade to the economy system:
+    * Old system:
+        * want area/4 miners.
+    * New system:
+        * want area/16 miner.
+    * Benefit:
+        * more soldiers are built early game without losing on economy.
+* various adaptation to the balance patch.
+
+
+
+TODO:
+* balance archon building power.
+* miner micro.
+* implement laboratory and sages?

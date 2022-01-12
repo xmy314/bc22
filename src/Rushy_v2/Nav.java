@@ -1735,22 +1735,30 @@ public class Nav {
         return HAR_direction;
     }
 
-    public boolean moveWrapper(Direction bestDir) throws GameActionException {
-        if (rc.canMove(bestDir)) {
-            rc.move(bestDir);
-            if (smartness) updateRubble(bestDir);
+    public boolean moveWrapper(Direction best_dir) throws GameActionException {
+        return moveWrapper(best_dir,false);
+    }
+
+    public boolean moveWrapper(Direction best_dir, boolean try_offset) throws GameActionException{
+        if (rc.canMove(best_dir)) {
+            rc.move(best_dir);
+            if (smartness) updateRubble(best_dir);
             return true;
-        } else if (rc.canMove(bestDir.rotateRight())) {
-            rc.move(bestDir.rotateRight());
-            if (smartness) updateRubble(bestDir);
-            return true;
-        } else if (rc.canMove(bestDir.rotateLeft())) {
-            rc.move(bestDir.rotateLeft());
-            if (smartness) updateRubble(bestDir);
-            return true;
-        } else {
-            return false;
         }
+
+        if(try_offset) {
+            if (rc.canMove(best_dir.rotateRight())) {
+                rc.move(best_dir.rotateRight());
+                if (smartness) updateRubble(best_dir);
+                return true;
+            } else if (rc.canMove(best_dir.rotateLeft())) {
+                rc.move(best_dir.rotateLeft());
+                if (smartness) updateRubble(best_dir);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean navigate(MapLocation reference) throws GameActionException {
@@ -1786,6 +1794,25 @@ public class Nav {
         }
 
         return last_avoidance_target;
+    }
+
+    public void optimalPlacementAround(MapLocation target,int radius_squared) throws GameActionException {
+        int best_rubble = rc.getLocation().isWithinDistanceSquared(target,radius_squared)? rc.senseRubble(rc.getLocation()):200;
+        Direction best_direction = null;
+        for(Direction direction:directions){
+            if(!rc.canMove(direction)) continue;
+            MapLocation n_loc =rc.adjacentLocation(direction);
+            if(target.isWithinDistanceSquared(n_loc,radius_squared)){
+                int new_rubble = rc.senseRubble(n_loc);
+                if(new_rubble<best_rubble){
+                    best_direction=direction;
+                    best_rubble=new_rubble;
+                }
+            }
+        }
+        if(best_direction!=null) {
+            moveWrapper(best_direction);
+        }
     }
 
     public static MapLocation rotateAround(MapLocation origin, MapLocation toRotate, float offset) {

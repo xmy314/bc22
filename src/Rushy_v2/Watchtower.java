@@ -31,7 +31,7 @@ public class Watchtower extends Robot {
                         rc.transform();
                     }
                 }else{
-                    MapLocation toAttack = decideTarget(nearby_enemy_units).location;
+                    MapLocation toAttack = chooseAttackTarget(nearby_enemy_units).location;
                     if(debugOn) rc.setIndicatorLine(rc.getLocation(),toAttack,100,0,0);
                     if (rc.canAttack(toAttack)) {
                         rc.attack(toAttack);
@@ -39,7 +39,7 @@ public class Watchtower extends Robot {
                 }
             }else if(rc.getMode()==RobotMode.PORTABLE){
                 if(moved_for_attack<move_threshold_round) {
-                    MapLocation target = decideTarget(nearby_enemy_units).location;
+                    MapLocation target = chooseAttackTarget(nearby_enemy_units).location;
                     moved_for_attack+=nav.navigate(target)?1:0;
                 }else{
                     if(rc.isTransformReady()){
