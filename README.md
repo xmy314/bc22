@@ -33,3 +33,24 @@ This is the Battlecode 2022 scaffold, containing an `examplefuncsplayer`. Read h
 - `./gradlew update`
     Update to the newest version! Run every so often
 
+
+BasicPlayer is the base model to get started.
+    uses a flawed lead farm strategy.
+
+Rushy is a modified version of BasicPlayer.
+    modified econ logic to be more offensive and anti-rush at the beginning. not good though. goes to lead farming after a bit.
+    adapted to the meta of unrolling loops for path finding. got vision radius squared 20 breadth first to 1500-3000 bytecode.
+    realize that miners can mine multiple times per turn.
+
+Rushy_v1 is an improved version Rushy.
+    Major upgrade to the communication system:
+        Old system:
+            stores 10 coordinates of speciality, and 4 bits for each coordinate.
+        New system:
+            divides the map into 64 chunks and store 4 bit of information for each.
+        Benefit:
+            miners and soldiers are way more active explores which benefits early stage economy.
+            soldiers and miners are better at coordinated movements.
+    Unit now memorizes their target for a while to avoid moving back and forth. (not perfect)
+
+        
