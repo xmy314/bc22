@@ -61,11 +61,11 @@ Rushy_v2 is an improved version Rushy_v1.
         * want area/16 miner.
     * Benefit:
         * more soldiers are built early game without losing on economy.
-* various adaptation to the balance patch.
+* various miner adaptation to the balance patch. (changing magic numbers. no idea how they worked out)
+* miner and soldier micro
 
 
 
 TODO:
 * balance archon building power.
-* miner micro.
 * implement laboratory and sages?

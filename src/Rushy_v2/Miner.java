@@ -24,7 +24,7 @@ public class Miner extends Robot {
         if (!rc.isActionReady()) return;
         if (mine_over_thresh_count==0) return;
 
-        if (Com.getHeadcount(RobotType.MINER) > 30 && rc.getRoundNum() < 1800) {
+        if (Com.getHeadcount(RobotType.MINER) > 30 && rc.getRoundNum() < 1300) {
             if (rc.senseLead(rc.getLocation()) == 0) {
                 if (ally_miner_count >= 3 * mine_over_thresh_count) {
                     Com.decrementHeadcount();

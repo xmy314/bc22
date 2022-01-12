@@ -189,11 +189,11 @@ public class Com {
         }
 
         //TODO: following is only for debugging
-        if (rc.getType() == RobotType.ARCHON) {
+        if (debugOn && rc.getType() == RobotType.ARCHON) {
             for (int x = 0; x < 8; x++) {
                 for (int y = 0; y < 8; y++) {
                     int v = getFlags(x, y);
-                    if(debugOn) rc.setIndicatorDot(getChunkCenter(x, y), ((v & 0b001) != 0) ? 200 : 0, ((v & 0b010) != 0) ? 200 : 0, ((v & 0b100) != 0) ? 200 : 0);
+                    rc.setIndicatorDot(getChunkCenter(x, y), ((v & 0b001) != 0) ? 200 : 0, ((v & 0b010) != 0) ? 200 : 0, ((v & 0b100) != 0) ? 200 : 0);
                 }
             }
         }
