@@ -40,6 +40,10 @@ public class Archon extends Robot {
                 }
             }
         }
+
+        if(rc.getRoundNum()==400){
+            Com.analyzeTargets();
+        }
     }
 
     private RobotType decideNext() throws GameActionException{

@@ -140,9 +140,12 @@ public class Com {
                     }
                 }
             }
+            if(potential_target!=null){
+                return potential_target;
+            }
         }
 
-        return potential_target;
+        return null;
     }
 
     /* returns the place is registered with a different flag.*/
@@ -164,11 +167,12 @@ public class Com {
 
     public static void verifyTargets() throws GameActionException {
 
-        //TODO: this is fairly inefficient and hacky as it only checks the chunk it stands on.
         boolean is_moving=rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE;
 
         int tbw = 0b100;
-        if (2 * nearby_enemy_units.length > protection_level) {
+        // using enemy count as the scheme would turn away miners from component miner whom they want to compete against.
+        // the result is generally lower economy then it could have had.
+        if (threat_level > 0) {
             tbw |= 0b1;
         }
         if ( is_moving && ally_miner_count < 3 * mine_over_thresh_count) {
@@ -196,6 +200,8 @@ public class Com {
     }
 
     public static void analyzeTargets() throws GameActionException {
+        // this function runs at the end of the exploration age.
+        // turning all unexplored blocks that connects to enemy blocks through unexplored blocks enemy blocks.
         int r0=rc.readSharedArray(4);
         int f0=r0>>12;
         int f1=(r0>>8)&0b1111;
@@ -276,6 +282,103 @@ public class Com {
         int f61=(r15>>8)&0b1111;
         int f62=(r15>>4)&0b1111;
         int f63=r15&0b1111;
+
+        if( f0 ==0b0100&& ((f1 |f8 |f9 )&0b0001)!=0 ){ f0  |= 0b0001;}
+        if( f1 ==0b0100&& ((f0 |f2 |f8 |f9 |f10)&0b0001)!=0 ){ f1  |= 0b0001;}
+        if( f2 ==0b0100&& ((f1 |f3 |f9 |f10|f11)&0b0001)!=0 ){ f2  |= 0b0001;}
+        if( f3 ==0b0100&& ((f2 |f4 |f10|f11|f12)&0b0001)!=0 ){ f3  |= 0b0001;}
+        if( f4 ==0b0100&& ((f3 |f5 |f11|f12|f13)&0b0001)!=0 ){ f4  |= 0b0001;}
+        if( f5 ==0b0100&& ((f4 |f6 |f12|f13|f14)&0b0001)!=0 ){ f5  |= 0b0001;}
+        if( f6 ==0b0100&& ((f5 |f7 |f13|f14|f15)&0b0001)!=0 ){ f6  |= 0b0001;}
+        if( f7 ==0b0100&& ((f6 |f14|f15)&0b0001)!=0 ){ f7  |= 0b0001;}
+        if( f8 ==0b0100&& ((f0 |f1 |f9 |f16|f17)&0b0001)!=0 ){ f8  |= 0b0001;}
+        if( f9 ==0b0100&& ((f0 |f1 |f2 |f8 |f10|f16|f17|f18)&0b0001)!=0 ){ f9  |= 0b0001;}
+        if( f10==0b0100&& ((f1 |f2 |f3 |f9 |f11|f17|f18|f19)&0b0001)!=0 ){ f10 |= 0b0001;}
+        if( f11==0b0100&& ((f2 |f3 |f4 |f10|f12|f18|f19|f20)&0b0001)!=0 ){ f11 |= 0b0001;}
+        if( f12==0b0100&& ((f3 |f4 |f5 |f11|f13|f19|f20|f21)&0b0001)!=0 ){ f12 |= 0b0001;}
+        if( f13==0b0100&& ((f4 |f5 |f6 |f12|f14|f20|f21|f22)&0b0001)!=0 ){ f13 |= 0b0001;}
+        if( f14==0b0100&& ((f5 |f6 |f7 |f13|f15|f21|f22|f23)&0b0001)!=0 ){ f14 |= 0b0001;}
+        if( f15==0b0100&& ((f6 |f7 |f14|f22|f23)&0b0001)!=0 ){ f15 |= 0b0001;}
+        if( f16==0b0100&& ((f8 |f9 |f17|f24|f25)&0b0001)!=0 ){ f16 |= 0b0001;}
+        if( f17==0b0100&& ((f8 |f9 |f10|f16|f18|f24|f25|f26)&0b0001)!=0 ){ f17 |= 0b0001;}
+        if( f18==0b0100&& ((f9 |f10|f11|f17|f19|f25|f26|f27)&0b0001)!=0 ){ f18 |= 0b0001;}
+        if( f19==0b0100&& ((f10|f11|f12|f18|f20|f26|f27|f28)&0b0001)!=0 ){ f19 |= 0b0001;}
+        if( f20==0b0100&& ((f11|f12|f13|f19|f21|f27|f28|f29)&0b0001)!=0 ){ f20 |= 0b0001;}
+        if( f21==0b0100&& ((f12|f13|f14|f20|f22|f28|f29|f30)&0b0001)!=0 ){ f21 |= 0b0001;}
+        if( f22==0b0100&& ((f13|f14|f15|f21|f23|f29|f30|f31)&0b0001)!=0 ){ f22 |= 0b0001;}
+        if( f23==0b0100&& ((f14|f15|f22|f30|f31)&0b0001)!=0 ){ f23 |= 0b0001;}
+        if( f24==0b0100&& ((f16|f17|f25|f32|f33)&0b0001)!=0 ){ f24 |= 0b0001;}
+        if( f25==0b0100&& ((f16|f17|f18|f24|f26|f32|f33|f34)&0b0001)!=0 ){ f25 |= 0b0001;}
+        if( f26==0b0100&& ((f17|f18|f19|f25|f27|f33|f34|f35)&0b0001)!=0 ){ f26 |= 0b0001;}
+        if( f27==0b0100&& ((f18|f19|f20|f26|f28|f34|f35|f36)&0b0001)!=0 ){ f27 |= 0b0001;}
+        if( f28==0b0100&& ((f19|f20|f21|f27|f29|f35|f36|f37)&0b0001)!=0 ){ f28 |= 0b0001;}
+        if( f29==0b0100&& ((f20|f21|f22|f28|f30|f36|f37|f38)&0b0001)!=0 ){ f29 |= 0b0001;}
+        if( f30==0b0100&& ((f21|f22|f23|f29|f31|f37|f38|f39)&0b0001)!=0 ){ f30 |= 0b0001;}
+        if( f31==0b0100&& ((f22|f23|f30|f38|f39)&0b0001)!=0 ){ f31 |= 0b0001;}
+        if( f32==0b0100&& ((f24|f25|f33|f40|f41)&0b0001)!=0 ){ f32 |= 0b0001;}
+        if( f33==0b0100&& ((f24|f25|f26|f32|f34|f40|f41|f42)&0b0001)!=0 ){ f33 |= 0b0001;}
+        if( f34==0b0100&& ((f25|f26|f27|f33|f35|f41|f42|f43)&0b0001)!=0 ){ f34 |= 0b0001;}
+        if( f35==0b0100&& ((f26|f27|f28|f34|f36|f42|f43|f44)&0b0001)!=0 ){ f35 |= 0b0001;}
+        if( f36==0b0100&& ((f27|f28|f29|f35|f37|f43|f44|f45)&0b0001)!=0 ){ f36 |= 0b0001;}
+        if( f37==0b0100&& ((f28|f29|f30|f36|f38|f44|f45|f46)&0b0001)!=0 ){ f37 |= 0b0001;}
+        if( f38==0b0100&& ((f29|f30|f31|f37|f39|f45|f46|f47)&0b0001)!=0 ){ f38 |= 0b0001;}
+        if( f39==0b0100&& ((f30|f31|f38|f46|f47)&0b0001)!=0 ){ f39 |= 0b0001;}
+        if( f40==0b0100&& ((f32|f33|f41|f48|f49)&0b0001)!=0 ){ f40 |= 0b0001;}
+        if( f41==0b0100&& ((f32|f33|f34|f40|f42|f48|f49|f50)&0b0001)!=0 ){ f41 |= 0b0001;}
+        if( f42==0b0100&& ((f33|f34|f35|f41|f43|f49|f50|f51)&0b0001)!=0 ){ f42 |= 0b0001;}
+        if( f43==0b0100&& ((f34|f35|f36|f42|f44|f50|f51|f52)&0b0001)!=0 ){ f43 |= 0b0001;}
+        if( f44==0b0100&& ((f35|f36|f37|f43|f45|f51|f52|f53)&0b0001)!=0 ){ f44 |= 0b0001;}
+        if( f45==0b0100&& ((f36|f37|f38|f44|f46|f52|f53|f54)&0b0001)!=0 ){ f45 |= 0b0001;}
+        if( f46==0b0100&& ((f37|f38|f39|f45|f47|f53|f54|f55)&0b0001)!=0 ){ f46 |= 0b0001;}
+        if( f47==0b0100&& ((f38|f39|f46|f54|f55)&0b0001)!=0 ){ f47 |= 0b0001;}
+        if( f48==0b0100&& ((f40|f41|f49|f56|f57)&0b0001)!=0 ){ f48 |= 0b0001;}
+        if( f49==0b0100&& ((f40|f41|f42|f48|f50|f56|f57|f58)&0b0001)!=0 ){ f49 |= 0b0001;}
+        if( f50==0b0100&& ((f41|f42|f43|f49|f51|f57|f58|f59)&0b0001)!=0 ){ f50 |= 0b0001;}
+        if( f51==0b0100&& ((f42|f43|f44|f50|f52|f58|f59|f60)&0b0001)!=0 ){ f51 |= 0b0001;}
+        if( f52==0b0100&& ((f43|f44|f45|f51|f53|f59|f60|f61)&0b0001)!=0 ){ f52 |= 0b0001;}
+        if( f53==0b0100&& ((f44|f45|f46|f52|f54|f60|f61|f62)&0b0001)!=0 ){ f53 |= 0b0001;}
+        if( f54==0b0100&& ((f45|f46|f47|f53|f55|f61|f62|f63)&0b0001)!=0 ){ f54 |= 0b0001;}
+        if( f55==0b0100&& ((f46|f47|f54|f62|f63)&0b0001)!=0 ){ f55 |= 0b0001;}
+        if( f56==0b0100&& ((f48|f49|f57)&0b0001)!=0 ){ f56 |= 0b0001;}
+        if( f57==0b0100&& ((f48|f49|f50|f56|f58)&0b0001)!=0 ){ f57 |= 0b0001;}
+        if( f58==0b0100&& ((f49|f50|f51|f57|f59)&0b0001)!=0 ){ f58 |= 0b0001;}
+        if( f59==0b0100&& ((f50|f51|f52|f58|f60)&0b0001)!=0 ){ f59 |= 0b0001;}
+        if( f60==0b0100&& ((f51|f52|f53|f59|f61)&0b0001)!=0 ){ f60 |= 0b0001;}
+        if( f61==0b0100&& ((f52|f53|f54|f60|f62)&0b0001)!=0 ){ f61 |= 0b0001;}
+        if( f62==0b0100&& ((f53|f54|f55|f61|f63)&0b0001)!=0 ){ f62 |= 0b0001;}
+        if( f63==0b0100&& ((f54|f55|f62)&0b0001)!=0 ){ f63 |= 0b0001;}
+        int w0  = (f0 <<12)|(f1 <<8)|(f2 <<4)|(f3 );
+        if( w0  != r0  )rc.writeSharedArray(4 ,w0 );
+        int w1  = (f4 <<12)|(f5 <<8)|(f6 <<4)|(f7 );
+        if( w1  != r1  )rc.writeSharedArray(5 ,w1 );
+        int w2  = (f8 <<12)|(f9 <<8)|(f10<<4)|(f11);
+        if( w2  != r2  )rc.writeSharedArray(6 ,w2 );
+        int w3  = (f12<<12)|(f13<<8)|(f14<<4)|(f15);
+        if( w3  != r3  )rc.writeSharedArray(7 ,w3 );
+        int w4  = (f16<<12)|(f17<<8)|(f18<<4)|(f19);
+        if( w4  != r4  )rc.writeSharedArray(8 ,w4 );
+        int w5  = (f20<<12)|(f21<<8)|(f22<<4)|(f23);
+        if( w5  != r5  )rc.writeSharedArray(9 ,w5 );
+        int w6  = (f24<<12)|(f25<<8)|(f26<<4)|(f27);
+        if( w6  != r6  )rc.writeSharedArray(10,w6 );
+        int w7  = (f28<<12)|(f29<<8)|(f30<<4)|(f31);
+        if( w7  != r7  )rc.writeSharedArray(11,w7 );
+        int w8  = (f32<<12)|(f33<<8)|(f34<<4)|(f35);
+        if( w8  != r8  )rc.writeSharedArray(12,w8 );
+        int w9  = (f36<<12)|(f37<<8)|(f38<<4)|(f39);
+        if( w9  != r9  )rc.writeSharedArray(13,w9 );
+        int w10 = (f40<<12)|(f41<<8)|(f42<<4)|(f43);
+        if( w10 != r10 )rc.writeSharedArray(14,w10);
+        int w11 = (f44<<12)|(f45<<8)|(f46<<4)|(f47);
+        if( w11 != r11 )rc.writeSharedArray(15,w11);
+        int w12 = (f48<<12)|(f49<<8)|(f50<<4)|(f51);
+        if( w12 != r12 )rc.writeSharedArray(16,w12);
+        int w13 = (f52<<12)|(f53<<8)|(f54<<4)|(f55);
+        if( w13 != r13 )rc.writeSharedArray(17,w13);
+        int w14 = (f56<<12)|(f57<<8)|(f58<<4)|(f59);
+        if( w14 != r14 )rc.writeSharedArray(18,w14);
+        int w15 = (f60<<12)|(f61<<8)|(f62<<4)|(f63);
+        if( w15 != r15 )rc.writeSharedArray(19,w15);
     }
 
     public static void incrementHeadCount() throws GameActionException {
