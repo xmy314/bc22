@@ -30,6 +30,15 @@ public class Archon extends Robot {
                     break;
                 }
             }
+        }else{
+            for(RobotInfo unit:nearby_ally_units){
+                if(!rc.isActionReady()) break;
+                if (unit.health<unit.type.actionRadiusSquared && unit.location.isWithinDistanceSquared(rc.getLocation(),20) ){
+                    while (rc.canRepair(unit.location)){
+                        rc.repair(unit.location);
+                    }
+                }
+            }
         }
     }
 
