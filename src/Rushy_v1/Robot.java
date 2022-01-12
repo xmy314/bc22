@@ -128,13 +128,13 @@ public class Robot {
             case MINER:
                 return 0;
             case LABORATORY:
-            case SOLDIER:
                 return 1;
+            case ARCHON:
             case BUILDER:
                 return 2;
             case WATCHTOWER:
+            case SOLDIER:
                 return 3;
-            case ARCHON:
             case SAGE:
                 return 4;
             default:

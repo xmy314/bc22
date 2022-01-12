@@ -112,7 +112,7 @@ public class Nav {
     }
 
     public void initRubble() throws GameActionException {
-        //531 bytecode
+        // <500 bytecode. more depends on the specifics.
         MapLocation loc = rc.getLocation();
 
         boolean yn4 = loc.y >= 4;
@@ -1409,75 +1409,77 @@ public class Nav {
             g_18 += c_18;
         }
 
-//        if(d_2!=null)rc.setIndicatorLine(loc.translate(-4,-2),loc.translate(-4,-2).add(d_2),10,10,10);
-//        if(d_3!=null)rc.setIndicatorLine(loc.translate(-4,-1),loc.translate(-4,-1).add(d_3),10,10,10);
-//        if(d_4!=null)rc.setIndicatorLine(loc.translate(-4, 0),loc.translate(-4, 0).add(d_4),10,10,10);
-//        if(d_5!=null)rc.setIndicatorLine(loc.translate(-4, 1),loc.translate(-4, 1).add(d_5),10,10,10);
-//        if(d_6!=null)rc.setIndicatorLine(loc.translate(-4, 2),loc.translate(-4, 2).add(d_6),10,10,10);
-//        if(d_10!=null)rc.setIndicatorLine(loc.translate(-3,-3),loc.translate(-3,-3).add(d_10),10,10,10);
-//        if(d_11!=null)rc.setIndicatorLine(loc.translate(-3,-2),loc.translate(-3,-2).add(d_11),10,10,10);
-//        if(d_12!=null)rc.setIndicatorLine(loc.translate(-3,-1),loc.translate(-3,-1).add(d_12),10,10,10);
-//        if(d_13!=null)rc.setIndicatorLine(loc.translate(-3, 0),loc.translate(-3, 0).add(d_13),10,10,10);
-//        if(d_14!=null)rc.setIndicatorLine(loc.translate(-3, 1),loc.translate(-3, 1).add(d_14),10,10,10);
-//        if(d_15!=null)rc.setIndicatorLine(loc.translate(-3, 2),loc.translate(-3, 2).add(d_15),10,10,10);
-//        if(d_16!=null)rc.setIndicatorLine(loc.translate(-3, 3),loc.translate(-3, 3).add(d_16),10,10,10);
-//        if(d_18!=null)rc.setIndicatorLine(loc.translate(-2,-4),loc.translate(-2,-4).add(d_18),10,10,10);
-//        if(d_19!=null)rc.setIndicatorLine(loc.translate(-2,-3),loc.translate(-2,-3).add(d_19),10,10,10);
-//        if(d_20!=null)rc.setIndicatorLine(loc.translate(-2,-2),loc.translate(-2,-2).add(d_20),10,10,10);
-//        if(d_21!=null)rc.setIndicatorLine(loc.translate(-2,-1),loc.translate(-2,-1).add(d_21),10,10,10);
-//        if(d_22!=null)rc.setIndicatorLine(loc.translate(-2, 0),loc.translate(-2, 0).add(d_22),10,10,10);
-//        if(d_23!=null)rc.setIndicatorLine(loc.translate(-2, 1),loc.translate(-2, 1).add(d_23),10,10,10);
-//        if(d_24!=null)rc.setIndicatorLine(loc.translate(-2, 2),loc.translate(-2, 2).add(d_24),10,10,10);
-//        if(d_25!=null)rc.setIndicatorLine(loc.translate(-2, 3),loc.translate(-2, 3).add(d_25),10,10,10);
-//        if(d_26!=null)rc.setIndicatorLine(loc.translate(-2, 4),loc.translate(-2, 4).add(d_26),10,10,10);
-//        if(d_27!=null)rc.setIndicatorLine(loc.translate(-1,-4),loc.translate(-1,-4).add(d_27),10,10,10);
-//        if(d_28!=null)rc.setIndicatorLine(loc.translate(-1,-3),loc.translate(-1,-3).add(d_28),10,10,10);
-//        if(d_29!=null)rc.setIndicatorLine(loc.translate(-1,-2),loc.translate(-1,-2).add(d_29),10,10,10);
-//        if(d_30!=null)rc.setIndicatorLine(loc.translate(-1,-1),loc.translate(-1,-1).add(d_30),10,10,10);
-//        if(d_31!=null)rc.setIndicatorLine(loc.translate(-1, 0),loc.translate(-1, 0).add(d_31),10,10,10);
-//        if(d_32!=null)rc.setIndicatorLine(loc.translate(-1, 1),loc.translate(-1, 1).add(d_32),10,10,10);
-//        if(d_33!=null)rc.setIndicatorLine(loc.translate(-1, 2),loc.translate(-1, 2).add(d_33),10,10,10);
-//        if(d_34!=null)rc.setIndicatorLine(loc.translate(-1, 3),loc.translate(-1, 3).add(d_34),10,10,10);
-//        if(d_35!=null)rc.setIndicatorLine(loc.translate(-1, 4),loc.translate(-1, 4).add(d_35),10,10,10);
-//        if(d_36!=null)rc.setIndicatorLine(loc.translate( 0,-4),loc.translate( 0,-4).add(d_36),10,10,10);
-//        if(d_37!=null)rc.setIndicatorLine(loc.translate( 0,-3),loc.translate( 0,-3).add(d_37),10,10,10);
-//        if(d_38!=null)rc.setIndicatorLine(loc.translate( 0,-2),loc.translate( 0,-2).add(d_38),10,10,10);
-//        if(d_39!=null)rc.setIndicatorLine(loc.translate( 0,-1),loc.translate( 0,-1).add(d_39),10,10,10);
-//        if(d_40!=null)rc.setIndicatorLine(loc.translate( 0, 0),loc.translate( 0, 0).add(d_40),10,10,10);
-//        if(d_41!=null)rc.setIndicatorLine(loc.translate( 0, 1),loc.translate( 0, 1).add(d_41),10,10,10);
-//        if(d_42!=null)rc.setIndicatorLine(loc.translate( 0, 2),loc.translate( 0, 2).add(d_42),10,10,10);
-//        if(d_43!=null)rc.setIndicatorLine(loc.translate( 0, 3),loc.translate( 0, 3).add(d_43),10,10,10);
-//        if(d_44!=null)rc.setIndicatorLine(loc.translate( 0, 4),loc.translate( 0, 4).add(d_44),10,10,10);
-//        if(d_45!=null)rc.setIndicatorLine(loc.translate( 1,-4),loc.translate( 1,-4).add(d_45),10,10,10);
-//        if(d_46!=null)rc.setIndicatorLine(loc.translate( 1,-3),loc.translate( 1,-3).add(d_46),10,10,10);
-//        if(d_47!=null)rc.setIndicatorLine(loc.translate( 1,-2),loc.translate( 1,-2).add(d_47),10,10,10);
-//        if(d_48!=null)rc.setIndicatorLine(loc.translate( 1,-1),loc.translate( 1,-1).add(d_48),10,10,10);
-//        if(d_49!=null)rc.setIndicatorLine(loc.translate( 1, 0),loc.translate( 1, 0).add(d_49),10,10,10);
-//        if(d_50!=null)rc.setIndicatorLine(loc.translate( 1, 1),loc.translate( 1, 1).add(d_50),10,10,10);
-//        if(d_51!=null)rc.setIndicatorLine(loc.translate( 1, 2),loc.translate( 1, 2).add(d_51),10,10,10);
-//        if(d_52!=null)rc.setIndicatorLine(loc.translate( 1, 3),loc.translate( 1, 3).add(d_52),10,10,10);
-//        if(d_53!=null)rc.setIndicatorLine(loc.translate( 1, 4),loc.translate( 1, 4).add(d_53),10,10,10);
-//        if(d_54!=null)rc.setIndicatorLine(loc.translate( 2,-4),loc.translate( 2,-4).add(d_54),10,10,10);
-//        if(d_55!=null)rc.setIndicatorLine(loc.translate( 2,-3),loc.translate( 2,-3).add(d_55),10,10,10);
-//        if(d_56!=null)rc.setIndicatorLine(loc.translate( 2,-2),loc.translate( 2,-2).add(d_56),10,10,10);
-//        if(d_57!=null)rc.setIndicatorLine(loc.translate( 2,-1),loc.translate( 2,-1).add(d_57),10,10,10);
-//        if(d_58!=null)rc.setIndicatorLine(loc.translate( 2, 0),loc.translate( 2, 0).add(d_58),10,10,10);
-//        if(d_59!=null)rc.setIndicatorLine(loc.translate( 2, 1),loc.translate( 2, 1).add(d_59),10,10,10);
-//        if(d_60!=null)rc.setIndicatorLine(loc.translate( 2, 2),loc.translate( 2, 2).add(d_60),10,10,10);
-//        if(d_61!=null)rc.setIndicatorLine(loc.translate( 2, 3),loc.translate( 2, 3).add(d_61),10,10,10);
-//        if(d_62!=null)rc.setIndicatorLine(loc.translate( 2, 4),loc.translate( 2, 4).add(d_62),10,10,10);
-//        if(d_64!=null)rc.setIndicatorLine(loc.translate( 3,-3),loc.translate( 3,-3).add(d_64),10,10,10);
-//        if(d_65!=null)rc.setIndicatorLine(loc.translate( 3,-2),loc.translate( 3,-2).add(d_65),10,10,10);
-//        if(d_66!=null)rc.setIndicatorLine(loc.translate( 3,-1),loc.translate( 3,-1).add(d_66),10,10,10);
-//        if(d_67!=null)rc.setIndicatorLine(loc.translate( 3, 0),loc.translate( 3, 0).add(d_67),10,10,10);
-//        if(d_68!=null)rc.setIndicatorLine(loc.translate( 3, 1),loc.translate( 3, 1).add(d_68),10,10,10);
-//        if(d_69!=null)rc.setIndicatorLine(loc.translate( 3, 2),loc.translate( 3, 2).add(d_69),10,10,10);
-//        if(d_70!=null)rc.setIndicatorLine(loc.translate( 3, 3),loc.translate( 3, 3).add(d_70),10,10,10);
-//        if(d_74!=null)rc.setIndicatorLine(loc.translate( 4,-2),loc.translate( 4,-2).add(d_74),10,10,10);
-//        if(d_75!=null)rc.setIndicatorLine(loc.translate( 4,-1),loc.translate( 4,-1).add(d_75),10,10,10);
-//        if(d_76!=null)rc.setIndicatorLine(loc.translate( 4, 0),loc.translate( 4, 0).add(d_76),10,10,10);
-//        if(d_77!=null)rc.setIndicatorLine(loc.translate( 4, 1),loc.translate( 4, 1).add(d_77),10,10,10);
-//        if(d_78!=null)rc.setIndicatorLine(loc.translate( 4, 2),loc.translate( 4, 2).add(d_78),10,10,10);
+//        if(false) {
+//            if(d_2!=null)rc.setIndicatorLine(loc.translate(-4,-2),loc.translate(-4,-2).add(d_2),10,10,10);
+//            if(d_3!=null)rc.setIndicatorLine(loc.translate(-4,-1),loc.translate(-4,-1).add(d_3),10,10,10);
+//            if(d_4!=null)rc.setIndicatorLine(loc.translate(-4, 0),loc.translate(-4, 0).add(d_4),10,10,10);
+//            if(d_5!=null)rc.setIndicatorLine(loc.translate(-4, 1),loc.translate(-4, 1).add(d_5),10,10,10);
+//            if(d_6!=null)rc.setIndicatorLine(loc.translate(-4, 2),loc.translate(-4, 2).add(d_6),10,10,10);
+//            if(d_10!=null)rc.setIndicatorLine(loc.translate(-3,-3),loc.translate(-3,-3).add(d_10),10,10,10);
+//            if(d_11!=null)rc.setIndicatorLine(loc.translate(-3,-2),loc.translate(-3,-2).add(d_11),10,10,10);
+//            if(d_12!=null)rc.setIndicatorLine(loc.translate(-3,-1),loc.translate(-3,-1).add(d_12),10,10,10);
+//            if(d_13!=null)rc.setIndicatorLine(loc.translate(-3, 0),loc.translate(-3, 0).add(d_13),10,10,10);
+//            if(d_14!=null)rc.setIndicatorLine(loc.translate(-3, 1),loc.translate(-3, 1).add(d_14),10,10,10);
+//            if(d_15!=null)rc.setIndicatorLine(loc.translate(-3, 2),loc.translate(-3, 2).add(d_15),10,10,10);
+//            if(d_16!=null)rc.setIndicatorLine(loc.translate(-3, 3),loc.translate(-3, 3).add(d_16),10,10,10);
+//            if(d_18!=null)rc.setIndicatorLine(loc.translate(-2,-4),loc.translate(-2,-4).add(d_18),10,10,10);
+//            if(d_19!=null)rc.setIndicatorLine(loc.translate(-2,-3),loc.translate(-2,-3).add(d_19),10,10,10);
+//            if(d_20!=null)rc.setIndicatorLine(loc.translate(-2,-2),loc.translate(-2,-2).add(d_20),10,10,10);
+//            if(d_21!=null)rc.setIndicatorLine(loc.translate(-2,-1),loc.translate(-2,-1).add(d_21),10,10,10);
+//            if(d_22!=null)rc.setIndicatorLine(loc.translate(-2, 0),loc.translate(-2, 0).add(d_22),10,10,10);
+//            if(d_23!=null)rc.setIndicatorLine(loc.translate(-2, 1),loc.translate(-2, 1).add(d_23),10,10,10);
+//            if(d_24!=null)rc.setIndicatorLine(loc.translate(-2, 2),loc.translate(-2, 2).add(d_24),10,10,10);
+//            if(d_25!=null)rc.setIndicatorLine(loc.translate(-2, 3),loc.translate(-2, 3).add(d_25),10,10,10);
+//            if(d_26!=null)rc.setIndicatorLine(loc.translate(-2, 4),loc.translate(-2, 4).add(d_26),10,10,10);
+//            if(d_27!=null)rc.setIndicatorLine(loc.translate(-1,-4),loc.translate(-1,-4).add(d_27),10,10,10);
+//            if(d_28!=null)rc.setIndicatorLine(loc.translate(-1,-3),loc.translate(-1,-3).add(d_28),10,10,10);
+//            if(d_29!=null)rc.setIndicatorLine(loc.translate(-1,-2),loc.translate(-1,-2).add(d_29),10,10,10);
+//            if(d_30!=null)rc.setIndicatorLine(loc.translate(-1,-1),loc.translate(-1,-1).add(d_30),10,10,10);
+//            if(d_31!=null)rc.setIndicatorLine(loc.translate(-1, 0),loc.translate(-1, 0).add(d_31),10,10,10);
+//            if(d_32!=null)rc.setIndicatorLine(loc.translate(-1, 1),loc.translate(-1, 1).add(d_32),10,10,10);
+//            if(d_33!=null)rc.setIndicatorLine(loc.translate(-1, 2),loc.translate(-1, 2).add(d_33),10,10,10);
+//            if(d_34!=null)rc.setIndicatorLine(loc.translate(-1, 3),loc.translate(-1, 3).add(d_34),10,10,10);
+//            if(d_35!=null)rc.setIndicatorLine(loc.translate(-1, 4),loc.translate(-1, 4).add(d_35),10,10,10);
+//            if(d_36!=null)rc.setIndicatorLine(loc.translate( 0,-4),loc.translate( 0,-4).add(d_36),10,10,10);
+//            if(d_37!=null)rc.setIndicatorLine(loc.translate( 0,-3),loc.translate( 0,-3).add(d_37),10,10,10);
+//            if(d_38!=null)rc.setIndicatorLine(loc.translate( 0,-2),loc.translate( 0,-2).add(d_38),10,10,10);
+//            if(d_39!=null)rc.setIndicatorLine(loc.translate( 0,-1),loc.translate( 0,-1).add(d_39),10,10,10);
+//            if(d_40!=null)rc.setIndicatorLine(loc.translate( 0, 0),loc.translate( 0, 0).add(d_40),10,10,10);
+//            if(d_41!=null)rc.setIndicatorLine(loc.translate( 0, 1),loc.translate( 0, 1).add(d_41),10,10,10);
+//            if(d_42!=null)rc.setIndicatorLine(loc.translate( 0, 2),loc.translate( 0, 2).add(d_42),10,10,10);
+//            if(d_43!=null)rc.setIndicatorLine(loc.translate( 0, 3),loc.translate( 0, 3).add(d_43),10,10,10);
+//            if(d_44!=null)rc.setIndicatorLine(loc.translate( 0, 4),loc.translate( 0, 4).add(d_44),10,10,10);
+//            if(d_45!=null)rc.setIndicatorLine(loc.translate( 1,-4),loc.translate( 1,-4).add(d_45),10,10,10);
+//            if(d_46!=null)rc.setIndicatorLine(loc.translate( 1,-3),loc.translate( 1,-3).add(d_46),10,10,10);
+//            if(d_47!=null)rc.setIndicatorLine(loc.translate( 1,-2),loc.translate( 1,-2).add(d_47),10,10,10);
+//            if(d_48!=null)rc.setIndicatorLine(loc.translate( 1,-1),loc.translate( 1,-1).add(d_48),10,10,10);
+//            if(d_49!=null)rc.setIndicatorLine(loc.translate( 1, 0),loc.translate( 1, 0).add(d_49),10,10,10);
+//            if(d_50!=null)rc.setIndicatorLine(loc.translate( 1, 1),loc.translate( 1, 1).add(d_50),10,10,10);
+//            if(d_51!=null)rc.setIndicatorLine(loc.translate( 1, 2),loc.translate( 1, 2).add(d_51),10,10,10);
+//            if(d_52!=null)rc.setIndicatorLine(loc.translate( 1, 3),loc.translate( 1, 3).add(d_52),10,10,10);
+//            if(d_53!=null)rc.setIndicatorLine(loc.translate( 1, 4),loc.translate( 1, 4).add(d_53),10,10,10);
+//            if(d_54!=null)rc.setIndicatorLine(loc.translate( 2,-4),loc.translate( 2,-4).add(d_54),10,10,10);
+//            if(d_55!=null)rc.setIndicatorLine(loc.translate( 2,-3),loc.translate( 2,-3).add(d_55),10,10,10);
+//            if(d_56!=null)rc.setIndicatorLine(loc.translate( 2,-2),loc.translate( 2,-2).add(d_56),10,10,10);
+//            if(d_57!=null)rc.setIndicatorLine(loc.translate( 2,-1),loc.translate( 2,-1).add(d_57),10,10,10);
+//            if(d_58!=null)rc.setIndicatorLine(loc.translate( 2, 0),loc.translate( 2, 0).add(d_58),10,10,10);
+//            if(d_59!=null)rc.setIndicatorLine(loc.translate( 2, 1),loc.translate( 2, 1).add(d_59),10,10,10);
+//            if(d_60!=null)rc.setIndicatorLine(loc.translate( 2, 2),loc.translate( 2, 2).add(d_60),10,10,10);
+//            if(d_61!=null)rc.setIndicatorLine(loc.translate( 2, 3),loc.translate( 2, 3).add(d_61),10,10,10);
+//            if(d_62!=null)rc.setIndicatorLine(loc.translate( 2, 4),loc.translate( 2, 4).add(d_62),10,10,10);
+//            if(d_64!=null)rc.setIndicatorLine(loc.translate( 3,-3),loc.translate( 3,-3).add(d_64),10,10,10);
+//            if(d_65!=null)rc.setIndicatorLine(loc.translate( 3,-2),loc.translate( 3,-2).add(d_65),10,10,10);
+//            if(d_66!=null)rc.setIndicatorLine(loc.translate( 3,-1),loc.translate( 3,-1).add(d_66),10,10,10);
+//            if(d_67!=null)rc.setIndicatorLine(loc.translate( 3, 0),loc.translate( 3, 0).add(d_67),10,10,10);
+//            if(d_68!=null)rc.setIndicatorLine(loc.translate( 3, 1),loc.translate( 3, 1).add(d_68),10,10,10);
+//            if(d_69!=null)rc.setIndicatorLine(loc.translate( 3, 2),loc.translate( 3, 2).add(d_69),10,10,10);
+//            if(d_70!=null)rc.setIndicatorLine(loc.translate( 3, 3),loc.translate( 3, 3).add(d_70),10,10,10);
+//            if(d_74!=null)rc.setIndicatorLine(loc.translate( 4,-2),loc.translate( 4,-2).add(d_74),10,10,10);
+//            if(d_75!=null)rc.setIndicatorLine(loc.translate( 4,-1),loc.translate( 4,-1).add(d_75),10,10,10);
+//            if(d_76!=null)rc.setIndicatorLine(loc.translate( 4, 0),loc.translate( 4, 0).add(d_76),10,10,10);
+//            if(d_77!=null)rc.setIndicatorLine(loc.translate( 4, 1),loc.translate( 4, 1).add(d_77),10,10,10);
+//            if(d_78!=null)rc.setIndicatorLine(loc.translate( 4, 2),loc.translate( 4, 2).add(d_78),10,10,10);
+//        }
 
         int dx = reference.x - loc.x;
         int dy = reference.y - loc.y;
@@ -1663,73 +1665,71 @@ public class Nav {
         double D_i=Math.sqrt(loc.distanceSquaredTo(reference));
         double HAR = 0;
         Direction HAR_direction = null;
-        int basic_x = reference.x-loc.x;
-        int basic_y = reference.y-loc.y;
         double AR;
 
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 4,2)+Math.pow(basic_y + 2,2)) )/g_2;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 4,2)+Math.pow(dy + 2,2)) )/g_2;
         if(AR>HAR){HAR=AR;HAR_direction=d_2;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 4,2)+Math.pow(basic_y + 1,2)) )/g_3;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 4,2)+Math.pow(dy + 1,2)) )/g_3;
         if(AR>HAR){HAR=AR;HAR_direction=d_3;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 4,2)+Math.pow(basic_y    ,2)) )/g_4;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 4,2)+Math.pow(dy    ,2)) )/g_4;
         if(AR>HAR){HAR=AR;HAR_direction=d_4;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 4,2)+Math.pow(basic_y - 1,2)) )/g_5;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 4,2)+Math.pow(dy - 1,2)) )/g_5;
         if(AR>HAR){HAR=AR;HAR_direction=d_5;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 4,2)+Math.pow(basic_y - 2,2)) )/g_6;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 4,2)+Math.pow(dy - 2,2)) )/g_6;
         if(AR>HAR){HAR=AR;HAR_direction=d_6;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 3,2)+Math.pow(basic_y + 3,2)) )/g_10;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 3,2)+Math.pow(dy + 3,2)) )/g_10;
         if(AR>HAR){HAR=AR;HAR_direction=d_10;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 3,2)+Math.pow(basic_y + 2,2)) )/g_11;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 3,2)+Math.pow(dy + 2,2)) )/g_11;
         if(AR>HAR){HAR=AR;HAR_direction=d_11;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 3,2)+Math.pow(basic_y - 2,2)) )/g_15;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 3,2)+Math.pow(dy - 2,2)) )/g_15;
         if(AR>HAR){HAR=AR;HAR_direction=d_15;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 3,2)+Math.pow(basic_y - 3,2)) )/g_16;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 3,2)+Math.pow(dy - 3,2)) )/g_16;
         if(AR>HAR){HAR=AR;HAR_direction=d_16;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 2,2)+Math.pow(basic_y + 4,2)) )/g_18;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 2,2)+Math.pow(dy + 4,2)) )/g_18;
         if(AR>HAR){HAR=AR;HAR_direction=d_18;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 2,2)+Math.pow(basic_y + 3,2)) )/g_19;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 2,2)+Math.pow(dy + 3,2)) )/g_19;
         if(AR>HAR){HAR=AR;HAR_direction=d_19;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 2,2)+Math.pow(basic_y - 3,2)) )/g_25;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 2,2)+Math.pow(dy - 3,2)) )/g_25;
         if(AR>HAR){HAR=AR;HAR_direction=d_25;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 2,2)+Math.pow(basic_y - 4,2)) )/g_26;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 2,2)+Math.pow(dy - 4,2)) )/g_26;
         if(AR>HAR){HAR=AR;HAR_direction=d_26;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 1,2)+Math.pow(basic_y + 4,2)) )/g_27;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 1,2)+Math.pow(dy + 4,2)) )/g_27;
         if(AR>HAR){HAR=AR;HAR_direction=d_27;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x + 1,2)+Math.pow(basic_y - 4,2)) )/g_35;
+        AR = (D_i-Math.sqrt(Math.pow(dx + 1,2)+Math.pow(dy - 4,2)) )/g_35;
         if(AR>HAR){HAR=AR;HAR_direction=d_35;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x    ,2)+Math.pow(basic_y + 4,2)) )/g_36;
+        AR = (D_i-Math.sqrt(Math.pow(dx    ,2)+Math.pow(dy + 4,2)) )/g_36;
         if(AR>HAR){HAR=AR;HAR_direction=d_36;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x    ,2)+Math.pow(basic_y - 4,2)) )/g_44;
+        AR = (D_i-Math.sqrt(Math.pow(dx    ,2)+Math.pow(dy - 4,2)) )/g_44;
         if(AR>HAR){HAR=AR;HAR_direction=d_44;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 1,2)+Math.pow(basic_y + 4,2)) )/g_45;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 1,2)+Math.pow(dy + 4,2)) )/g_45;
         if(AR>HAR){HAR=AR;HAR_direction=d_45;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 1,2)+Math.pow(basic_y - 4,2)) )/g_53;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 1,2)+Math.pow(dy - 4,2)) )/g_53;
         if(AR>HAR){HAR=AR;HAR_direction=d_53;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 2,2)+Math.pow(basic_y + 4,2)) )/g_54;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 2,2)+Math.pow(dy + 4,2)) )/g_54;
         if(AR>HAR){HAR=AR;HAR_direction=d_54;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 2,2)+Math.pow(basic_y + 3,2)) )/g_55;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 2,2)+Math.pow(dy + 3,2)) )/g_55;
         if(AR>HAR){HAR=AR;HAR_direction=d_55;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 2,2)+Math.pow(basic_y - 3,2)) )/g_61;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 2,2)+Math.pow(dy - 3,2)) )/g_61;
         if(AR>HAR){HAR=AR;HAR_direction=d_61;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 2,2)+Math.pow(basic_y - 4,2)) )/g_62;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 2,2)+Math.pow(dy - 4,2)) )/g_62;
         if(AR>HAR){HAR=AR;HAR_direction=d_62;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 3,2)+Math.pow(basic_y + 3,2)) )/g_64;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 3,2)+Math.pow(dy + 3,2)) )/g_64;
         if(AR>HAR){HAR=AR;HAR_direction=d_64;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 3,2)+Math.pow(basic_y + 2,2)) )/g_65;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 3,2)+Math.pow(dy + 2,2)) )/g_65;
         if(AR>HAR){HAR=AR;HAR_direction=d_65;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 3,2)+Math.pow(basic_y - 2,2)) )/g_69;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 3,2)+Math.pow(dy - 2,2)) )/g_69;
         if(AR>HAR){HAR=AR;HAR_direction=d_69;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 3,2)+Math.pow(basic_y - 3,2)) )/g_70;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 3,2)+Math.pow(dy - 3,2)) )/g_70;
         if(AR>HAR){HAR=AR;HAR_direction=d_70;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 4,2)+Math.pow(basic_y + 2,2)) )/g_74;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 4,2)+Math.pow(dy + 2,2)) )/g_74;
         if(AR>HAR){HAR=AR;HAR_direction=d_74;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 4,2)+Math.pow(basic_y + 1,2)) )/g_75;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 4,2)+Math.pow(dy + 1,2)) )/g_75;
         if(AR>HAR){HAR=AR;HAR_direction=d_75;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 4,2)+Math.pow(basic_y    ,2)) )/g_76;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 4,2)+Math.pow(dy    ,2)) )/g_76;
         if(AR>HAR){HAR=AR;HAR_direction=d_76;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 4,2)+Math.pow(basic_y - 1,2)) )/g_77;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 4,2)+Math.pow(dy - 1,2)) )/g_77;
         if(AR>HAR){HAR=AR;HAR_direction=d_77;}
-        AR = (D_i-Math.sqrt(Math.pow(basic_x - 4,2)+Math.pow(basic_y - 2,2)) )/g_78;
+        AR = (D_i-Math.sqrt(Math.pow(dx - 4,2)+Math.pow(dy - 2,2)) )/g_78;
         if(AR>HAR){HAR=AR;HAR_direction=d_78;}
 
         return HAR_direction;
@@ -1755,6 +1755,7 @@ public class Nav {
 
     public boolean navigate(MapLocation reference) throws GameActionException {
         if (!rc.isMovementReady()) {return false;}
+
 
         Direction bestDir = (smartness)?BFSTo(reference):rc.getLocation().directionTo(reference);
         if(bestDir!=null) { // TODO: i don't get why it might be null.

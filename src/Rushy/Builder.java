@@ -1,6 +1,5 @@
 package Rushy;
 
-import Rushy_v1.utils.Debug;
 import battlecode.common.*;
 
 public class Builder extends Robot {

@@ -1,6 +1,5 @@
 package Rushy_v1;
 
-import Rushy_v1.utils.Debug;
 import battlecode.common.*;
 
 import static Rushy_v1.Robot.*;
@@ -52,39 +51,6 @@ public class Com {
         return -1;
     }
 
-    public static void verifyTargets() throws GameActionException {
-
-        //TODO: this is fairly inefficient and hacky as it only checks the chunk it stands on.
-        boolean is_moving=rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE;
-
-        int tbw = 0b100;
-        if (2 * nearby_enemy_units.length > protection_level) {
-            tbw |= 0b1;
-        }
-        if ( is_moving && ally_miner_count < 3 * mine_over_thresh_count) {
-            tbw |= 0b10;
-        }
-        if (nearby_ally_units.length >= ((rc.getRoundNum()<200)?0:1) ) {
-            tbw &= 0b011;
-        }
-
-        if (is_moving) {
-            setTarget(0b111, tbw, rc.getLocation());
-        } else {
-            setTarget(0b101, tbw, rc.getLocation());
-        }
-
-        //TODO: following is only for debugging
-        if (rc.getType() == RobotType.ARCHON) {
-            for (int x = 0; x < 8; x++) {
-                for (int y = 0; y < 8; y++) {
-                    int v = getFlags(x, y);
-                    if(debugOn) rc.setIndicatorDot(getChunkCenter(x, y), ((v & 0b001) != 0) ? 200 : 0, ((v & 0b010) != 0) ? 200 : 0, ((v & 0b100) != 0) ? 200 : 0);
-                }
-            }
-        }
-    }
-
     public static MapLocation getChunkCenter(int chunk_x, int chunk_y) {
         return new MapLocation(Math.min(chunk_x * chunk_width + chunk_width / 2, max_X - 1), Math.min(chunk_y * chunk_height + chunk_height / 2, max_Y - 1));
     }
@@ -105,7 +71,7 @@ public class Com {
         return getFlags(loc.x / chunk_width, loc.y / chunk_height);
     }
 
-    public static MapLocation getTarget(int read_mask, int data_mask) throws GameActionException {
+    public static MapLocation getTarget(int read_mask, int data_mask,int depth) throws GameActionException {
         // read mask is to only get location with that flag mask
 
         int current_chunk_x = rc.getLocation().x / chunk_width;
@@ -194,6 +160,59 @@ public class Com {
             v ^= difference_mask << bit_dex;
             rc.writeSharedArray(array_dex, v);
         }
+    }
+
+    public static void verifyTargets() throws GameActionException {
+
+        //TODO: this is fairly inefficient and hacky as it only checks the chunk it stands on.
+        boolean is_moving=rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE;
+
+        int tbw = 0b100;
+        if (2 * nearby_enemy_units.length > protection_level) {
+            tbw |= 0b1;
+        }
+        if ( is_moving && ally_miner_count < 3 * mine_over_thresh_count) {
+            tbw |= 0b10;
+        }
+        if (nearby_ally_units.length >= ((rc.getRoundNum()<200)?0:1) ) {
+            tbw &= 0b011;
+        }
+
+        if (is_moving) {
+            setTarget(0b111, tbw, rc.getLocation());
+        } else {
+            setTarget(0b101, tbw, rc.getLocation());
+        }
+
+        //TODO: following is only for debugging
+        if (rc.getType() == RobotType.ARCHON) {
+            for (int x = 0; x < 8; x++) {
+                for (int y = 0; y < 8; y++) {
+                    int v = getFlags(x, y);
+                    if(debugOn) rc.setIndicatorDot(getChunkCenter(x, y), ((v & 0b001) != 0) ? 200 : 0, ((v & 0b010) != 0) ? 200 : 0, ((v & 0b100) != 0) ? 200 : 0);
+                }
+            }
+        }
+    }
+
+    public static void analyzeTargets() throws GameActionException {
+        int r0 = rc.readSharedArray(4);
+        int r1 = rc.readSharedArray(5);
+        int r2 = rc.readSharedArray(6);
+        int r3 = rc.readSharedArray(7);
+        int r4 = rc.readSharedArray(8);
+        int r5 = rc.readSharedArray(9);
+        int r6 = rc.readSharedArray(10);
+        int r7 = rc.readSharedArray(11);
+        int r8 = rc.readSharedArray(12);
+        int r9 = rc.readSharedArray(13);
+        int r10 = rc.readSharedArray(14);
+        int r11 = rc.readSharedArray(15);
+        int r12 = rc.readSharedArray(16);
+        int r13 = rc.readSharedArray(17);
+        int r14 = rc.readSharedArray(18);
+        int r15 = rc.readSharedArray(19);
+
     }
 
     public static void incrementHeadCount() throws GameActionException {

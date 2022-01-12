@@ -71,7 +71,7 @@ public class Miner extends Robot {
 
         if (consistent_target == null) {
             if (ally_miner_count > 5 || Com.getHeadcount(RobotType.MINER)<20) {
-                consistent_target = Com.getTarget(0b101,0b100); // pioneer, but don't run to enemy
+                consistent_target = Com.getTarget(0b101,0b100,12); // pioneer, but don't run to enemy
                 if (consistent_target != null) {
                     is_target_from_com = true;
                 }
@@ -86,7 +86,7 @@ public class Miner extends Robot {
         }
 
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b011,0b011); // mine, but don't bother about enemy
+            consistent_target = Com.getTarget(0b011,0b011,4); // mine, but don't bother about enemy
             if (consistent_target != null) {
                 is_target_from_com = true;
             }
