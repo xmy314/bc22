@@ -62,7 +62,7 @@ Rushy_v2 is an improved version Rushy_v1.
     * Benefit:
         * more soldiers are built early game without losing on economy.
 * various miner adaptation to the balance patch. (changing magic numbers. no idea how they worked out)
-* miner and soldier micro
+* miner and soldier micro (kind of)
 
 
 
