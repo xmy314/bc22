@@ -7,9 +7,9 @@ import static Rushy_v3.Robot.*;
 public class Com {
     /*
     0 - 1 are for head counting units. written when each unit is created and whe they are about to die.
-    2 is for location of base and its determination and its status.
+    2 is for location of base and its nearby rubble count.
     4 -19 are for map data for a total of 256 bit.
-        the map is divided into 64 chunks, 8 along x and 8 along y. (TODO: this can be more dynamic on setup if i got time)
+        the map is divided into 64 chunks, 8 along x and 8 along y.
         each chunk has 4 bits of properties.
             currently, they are whether military is needed here. 1 for yes
                                         miner is needed here. 1 for yes
@@ -165,7 +165,7 @@ public class Com {
         int tbw = 0b100;
         // using enemy count as the scheme would turn away miners from component miner whom they want to compete against.
         // the result is generally lower economy then it could have had.
-        if (threat_level > 0) {
+        if (enemy_dmg > 0) {
             tbw |= 0b1;
         }
         if ( is_moving && ally_miner_count < 3 * mine_over_thresh_count) {

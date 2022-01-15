@@ -14,19 +14,18 @@ public class Watchtower extends Robot {
         super.takeTurn();
         // stuff that this type of bot does.
 
-        // synronized is way better.
+        // synchronized is way better.
         if(rc.getRoundNum() % 60 == 0){
             moved_for_attack=0;
         }
 
         int move_threshold_round=2;
-        int move_threshold_protection = 3;
 
         if(nearby_enemy_units.length>0){
             // if it should push, push.
 
             if(rc.getMode()==RobotMode.TURRET){
-                if(protection_level>move_threshold_protection && (rc.getLocation().x&1)!=(rc.getLocation().y&1) &&moved_for_attack<move_threshold_round){
+                if(ally_dmg - enemy_dmg >3 && (rc.getLocation().x&1)!=(rc.getLocation().y&1) &&moved_for_attack<move_threshold_round){
                     if(rc.isTransformReady()){
                         rc.transform();
                     }
@@ -91,10 +90,6 @@ public class Watchtower extends Robot {
             if (consistent_target!=null) {
                 is_target_from_com = true;
             }
-        }
-
-        if(consistent_target == null) {
-            consistent_target = nav.disperseAround(nearby_ally_units);
         }
 
         if (consistent_target != null) {

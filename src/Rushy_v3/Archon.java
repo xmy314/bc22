@@ -6,8 +6,6 @@ public class Archon extends Robot {
     static int ideal_miner_count;
     static int ideal_builder_count;
 
-    static int build_direction_index = 0;
-
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
         ideal_miner_count = Math.max(40,(max_X * max_Y) / 16); // 16 for 13/turn/square.
@@ -24,15 +22,21 @@ public class Archon extends Robot {
         }else {
 
             RobotType tb_built = decideNext();
-
             if (tb_built != null) {
+                int lowest_rubble = 100;
+                Direction lowest_rubble_direction = null;
                 for (int i = 0; i < 8; i++) {
-                    build_direction_index = (build_direction_index + 1) % 8;
-                    Direction dir = directions[build_direction_index];
+                    Direction dir = directions[i];
                     if (rc.canBuildRobot(tb_built, dir)) {
-                        rc.buildRobot(tb_built, dir);
-                        break;
+                        int n_rubble = rc.senseRubble(rc.adjacentLocation(dir));
+                        if(n_rubble<lowest_rubble){
+                            lowest_rubble=n_rubble;
+                            lowest_rubble_direction=dir;
+                        }
                     }
+                }
+                if(lowest_rubble_direction!=null){
+                    rc.buildRobot(tb_built,lowest_rubble_direction);
                 }
             } else {
                 for (RobotInfo unit : nearby_ally_units) {

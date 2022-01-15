@@ -79,12 +79,6 @@ public class Builder extends Robot {
             }
         }
 
-        if (consistent_target == null) {
-            if (nearby_ally_units.length > 10) {
-                consistent_target = nav.disperseAround(nearby_ally_units);
-            }
-        }
-
         if(consistent_target == null) {
             consistent_target = Com.getTarget(0b101,0b100,4); // find a place with no friendly units and no enemy.
             if (consistent_target != null) {
@@ -97,10 +91,6 @@ public class Builder extends Robot {
             if (consistent_target != null) {
                 is_target_from_com = true;
             }
-        }
-
-        if (consistent_target == null) {
-            consistent_target = nav.disperseAround(nearby_ally_units);
         }
 
         if (consistent_target != null) {

@@ -28,8 +28,10 @@ public class Robot {
     static RobotInfo[] nearby_ally_units;
     static RobotInfo[] nearby_enemy_units;
 
-    static int protection_level;
-    static int threat_level;
+    static float ally_dmg;
+    static float enemy_dmg;
+    static float ally_health;
+    static float enemy_health;
     static boolean ally_archon_in_sight;
     static boolean enemy_archon_in_sight;
 
@@ -45,16 +47,7 @@ public class Robot {
 
     public Robot(RobotController r) throws GameActionException {
         rc = r;
-        boolean smart_pathing=false;
-        switch (r.getType()){
-            case SOLDIER:
-            case WATCHTOWER:
-            case SAGE:
-            case MINER:
-//            case ARCHON:
-                smart_pathing=true;
-        }
-        nav = new Nav(r,smart_pathing);
+        nav = new Nav(r);
 
         max_X = rc.getMapWidth();
         max_Y = rc.getMapHeight();
@@ -73,95 +66,75 @@ public class Robot {
         nearby_ally_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam());
         nearby_enemy_units = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
 
-        protection_level=0;
+        ally_dmg =0;
+        ally_health=0;
         ally_archon_in_sight=false;
+        enemy_dmg =0;
+        enemy_health=0;
+        enemy_archon_in_sight = false;
+
+        ally_miner_count = 0;
+
         for (RobotInfo nearby_unit : nearby_ally_units) {
             switch (nearby_unit.getType()){
                 case SOLDIER:
-                    protection_level++;
+                    ally_dmg += 3/(1+rc.senseRubble(nearby_unit.location)/10f);
+                    ally_health += nearby_unit.health;
                     break;
                 case WATCHTOWER:
                     if(nearby_unit.getMode()==RobotMode.TURRET){
-                        protection_level++;
+                        ally_dmg +=nearby_unit.type.getDamage(nearby_unit.level)/(1+rc.senseRubble(nearby_unit.location)/10f);
                     }
+                    ally_health+=nearby_unit.health;
                     break;
                 case ARCHON:
                     ally_archon_in_sight = true;
+                    enemy_dmg -=2;
+                    break;
+                case MINER:
+                    ally_miner_count++;
                     break;
             }
         }
 
-        threat_level=0;
-        enemy_archon_in_sight = false;
+
         for (RobotInfo nearby_unit : nearby_enemy_units) {
             switch (nearby_unit.getType()){
                 case SOLDIER:
-                    threat_level++;
+                    enemy_dmg +=3/(1+rc.senseRubble(nearby_unit.location)/10f);
+                    enemy_health+=nearby_unit.health;
                     break;
                 case WATCHTOWER:
-                    if(nearby_unit.getMode()==RobotMode.TURRET){
-                        threat_level++;
-                    }
+                    enemy_dmg +=nearby_unit.type.getDamage(nearby_unit.level)/(1+rc.senseRubble(nearby_unit.location)/10f);
+                    enemy_health+=nearby_unit.health;
                     break;
                 case ARCHON:
-                    Com.setTarget(0b001,0b001,nearby_unit.location);
                     enemy_archon_in_sight=true;
+                    ally_dmg -=2;
                     break;
             }
         }
 
-        if(rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE) {
-            mines = rc.senseNearbyLocationsWithLead(20, 6); // any larger than some other miner can probably get to it first
-            mine_over_thresh_count = mines.length;
-
-            ally_miner_count = 0;
-            for (RobotInfo nearby_unit : nearby_ally_units) {
-                if (nearby_unit.getType() == RobotType.MINER) {
-                    ally_miner_count++;
-                }
-            }
-        }
-
+        mines = rc.senseNearbyLocationsWithLead(20,2); // any larger than some other miner can probably get to it first
+        mine_over_thresh_count = mines.length;
 
         Com.verifyTargets();
 
-        if(rc.getHealth()<=5*threat_level){
+        if(rc.getHealth()<=5+ enemy_dmg){
             Com.decrementHeadcount();
-        }
-
-    }
-
-    public static int getAttackPriority(RobotType rt) {
-        switch (rt) {
-            case MINER:
-                return 0;
-            case LABORATORY:
-                return 1;
-            case ARCHON:
-            case BUILDER:
-                return 2;
-            case WATCHTOWER:
-            case SOLDIER:
-                return 3;
-            case SAGE:
-                return 4;
-            default:
-                return -1;
         }
     }
 
     public static RobotInfo chooseAttackTarget(RobotInfo[] enemies) {
-        int record_priority = getAttackPriority(enemies[0].getType());
-        int tie_breaker_health = enemies[0].getHealth();
-        RobotInfo current_target = enemies[0];
-        for (int i = 1; i < enemies.length; i++) {
-            int priority = getAttackPriority(enemies[i].getType());
-            if (priority > record_priority || priority == record_priority && enemies[i].getHealth() < tie_breaker_health) {
-                current_target = enemies[i];
-                record_priority = priority;
-                tie_breaker_health = enemies[i].getHealth();
+        RobotInfo best_target = null;
+        float highest_priority = -1;
+        for (RobotInfo enemy : enemies) {
+            float priority = Math.abs(enemy.type.getDamage(enemy.level)) / (float) enemy.health;
+            if (priority > highest_priority) {
+                highest_priority = priority;
+                best_target = enemy;
             }
         }
-        return current_target;
+        return best_target;
     }
 }

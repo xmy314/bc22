@@ -40,10 +40,21 @@ public class Miner extends Robot {
                 closest_mine=mines[i];
             }
         }
+        if(closest_mine==null) return;
+        if(rc.getLocation().distanceSquaredTo(closest_mine)>10) return;
 
-        if (closest_dist<=2){
-            nav.optimalPlacementAround(closest_mine,2);
+        int lowest_rubble = rc.senseRubble(rc.getLocation());
+        MapLocation opt_loc = rc.getLocation();
+        for (Direction direction : directions) {
+            MapLocation n_loc = closest_mine.add(direction);
+            if (n_loc.x < 0 || n_loc.y < 0 | n_loc.x >= max_X || n_loc.y >= max_Y) continue;
+            int rubble = rc.senseRubble(n_loc);
+            if (rubble < lowest_rubble) {
+                opt_loc = n_loc;
+                lowest_rubble = rubble;
+            }
         }
+        nav.navigate(opt_loc);
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
@@ -84,9 +95,14 @@ public class Miner extends Robot {
             }
         }
 
+        if(enemy_dmg >0 && ally_dmg <=0){
+            consistent_target=spawn_point;
+            is_target_from_com = false;
+        }
+
         // find a nearby mine if wasn't able to mine prior trying to move
         if (consistent_target == null) {
-            if (mine_over_thresh_count > ally_miner_count) {
+            if (ally_miner_count<3 && mine_over_thresh_count>0 || mine_over_thresh_count > ally_miner_count) {
                 consistent_target = mines[rc.getID() % mine_over_thresh_count];
             }
         }
@@ -105,13 +121,6 @@ public class Miner extends Robot {
             consistent_target = Com.getTarget(0b011,0b010,4); // mine, don't run to enemy
             if (consistent_target != null) {
                 is_target_from_com = true;
-            }
-        }
-
-        if (consistent_target == null) {
-            if (ally_miner_count > 2) {
-                // avoid other miners.
-                consistent_target = nav.disperseAround(nearby_ally_units);
             }
         }
 
