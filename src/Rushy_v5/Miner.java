@@ -95,7 +95,8 @@ public class Miner extends Robot {
             }
         }
 
-        if(enemy_dmg >0 && ally_dmg <=0){
+        if(enemy_dmg >0 && ally_dmg <=0 || (Com.getFlags(rc.getLocation())&1)!=0){
+            if(consistent_target!=null)Com.setTarget(0b1,0b1,consistent_target);
             consistent_target=spawn_point;
             is_target_from_com = false;
         }

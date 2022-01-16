@@ -67,9 +67,17 @@ Rushy_v2 is an improved version Rushy_v1.
 Rushy_v3 is a slightly improved version of Rushy_v2
 * only have small advantage over Rushy_v2. most of which coming from modifying magic numbers.
 
-Rushy_v5 is an improved version of Rushy_v3.
-* better Soldier micro and build order.
+Rushy_v4 is an improved version of Rushy_v3.
+* better Soldier micro and build order. (a bit too defensive)
+
+Rushy_v5 is an improved version* of rushy_v4
+* changed build order to have more soldiers when there are more than 10 miners
+* changed coms to adapt to map shape and change chunks in to squares.
+* changed miners to be smarter at not running into enemy.
+* fixed watch tower code that is broken 2 to 3 version ago.
+* \* though it beats Rushy_v4 on most of the maps, it may be an over fit bullying rushy_v4's miner logic and motion less archon.
 
 TODO:
-* balance archon building power.
+* soldier micro improvement
+* fix coms signal to be where the source of signal is instead of where it is observed.
 * implement laboratory and sages?

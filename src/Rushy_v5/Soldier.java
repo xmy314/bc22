@@ -85,6 +85,7 @@ public class Soldier extends Robot {
         }
 
         public void update(RobotInfo ri) {
+            if(!on_map) return;
             int d = ri.getLocation().distanceSquaredTo(loc);
             try {
                 if (d <= ri.getType().actionRadiusSquared)
@@ -101,16 +102,16 @@ public class Soldier extends Robot {
 
         public boolean isBetter(SoldierMicroInfo mi) {
             // on map is better
-            if (on_map && !mi.on_map) return true;
-            if (!on_map && mi.on_map) return false;
+            if (!mi.on_map) return true;
+            if (!on_map) return false;
 
             // low potential_damage is better. however, there is a buffer.
             if (potential_dmg + 2 < mi.potential_dmg) return true;
             if (potential_dmg > mi.potential_dmg + 2) return false;
 
             // low rubble is better. here the cut-off is 2 times
-            if (2*(rubble + 10) < (mi.rubble+10)) return true;
-            if ((rubble + 10) > 2*(mi.rubble+10)) return false;
+            if (1.2f*(rubble + 10) < (mi.rubble+10)) return true;
+            if ((rubble + 10) > 1.2f*(mi.rubble+10)) return false;
 
             // can attack is better
             if (rc.isActionReady()) {

@@ -2,6 +2,8 @@ package Rushy_v5;
 
 import battlecode.common.*;
 
+import java.util.Random;
+
 public class Robot {
 
     final public static boolean debugOn = true;
@@ -19,6 +21,7 @@ public class Robot {
 
     static RobotController rc;
     static Nav nav;
+    static Random rng;
 
     static int max_X;
     static int max_Y;
@@ -48,6 +51,7 @@ public class Robot {
     public Robot(RobotController r) throws GameActionException {
         rc = r;
         nav = new Nav(r);
+        rng=new Random(rc.getID());
 
         max_X = rc.getMapWidth();
         max_Y = rc.getMapHeight();
