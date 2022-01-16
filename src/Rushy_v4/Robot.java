@@ -129,6 +129,7 @@ public class Robot {
         RobotInfo best_target = null;
         float highest_priority = -1;
         for (RobotInfo enemy : enemies) {
+            if(!rc.canAttack(enemy.location)) continue;
             float priority = Math.abs(enemy.type.getDamage(enemy.level)) / (float) enemy.health;
             if (priority > highest_priority) {
                 highest_priority = priority;

@@ -65,7 +65,7 @@ public class Miner extends Robot {
                 while (rc.canMineGold(mineLocation)) {
                     rc.mineGold(mineLocation);
                 }
-                while (rc.canMineLead(mineLocation) && (rc.senseLead(mineLocation) > 1 || (enemy_archon_in_sight && !ally_archon_in_sight)  )) {
+                while (rc.canMineLead(mineLocation) && (rc.senseLead(mineLocation) > 1 || ((enemy_archon_in_sight||enemy_dmg>ally_dmg) && !ally_archon_in_sight)  )) {
                     rc.mineLead(mineLocation);
                 }
                 if (!rc.isActionReady()) {
@@ -127,6 +127,5 @@ public class Miner extends Robot {
         if (consistent_target != null) {
             nav.navigate(consistent_target);
         }
-
     }
 }

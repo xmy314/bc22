@@ -64,7 +64,11 @@ Rushy_v2 is an improved version Rushy_v1.
 * various miner adaptation to the balance patch. (changing magic numbers. no idea how they worked out)
 * miner and soldier micro (kind of)
 
+Rushy_v3 is a slightly improved version of Rushy_v2
+* only have small advantage over Rushy_v2. most of which coming from modifying magic numbers.
 
+Rushy_v4 is an improved version of Rushy_v3.
+* better Soldier micro and build order.
 
 TODO:
 * balance archon building power.

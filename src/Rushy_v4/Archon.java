@@ -5,11 +5,13 @@ import battlecode.common.*;
 public class Archon extends Robot {
     static int ideal_miner_count;
     static int ideal_builder_count;
+    static int ideal_soldier_count;
 
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
-        ideal_miner_count = Math.max(40,(max_X * max_Y) / 16); // 16 for 13/turn/square.
-        ideal_builder_count=  Math.min((max_Y+max_X),10*rc.getArchonCount());
+        ideal_miner_count = Math.max(10,(max_X * max_Y) / 25); // 16 for 13/turn/square.
+        ideal_soldier_count = 2*ideal_miner_count;
+        ideal_builder_count=  rc.getArchonCount()*(max_Y+max_X)/10;
     }
 
     public void takeTurn() throws GameActionException {
@@ -55,10 +57,6 @@ public class Archon extends Robot {
         }
     }
 
-    private void opener() throws GameActionException {
-
-    }
-
     private RobotType decideNext() throws GameActionException{
         MapLocation an_enemy=Com.getTarget(0b001,0b001,8);
 
@@ -66,8 +64,6 @@ public class Archon extends Robot {
         int built_soldier_count=Com.getHeadcount(RobotType.SOLDIER);
         int built_builder_count=Com.getHeadcount(RobotType.BUILDER);
         int built_watch_tower_count = Com.getHeadcount(RobotType.WATCHTOWER);
-
-        int ideal_soldier_count = Math.max((max_X+max_Y),rc.getRoundNum()/10);
 
         RobotType ret = null;
         float progression = 10;
@@ -80,7 +76,7 @@ public class Archon extends Robot {
             }
         }
 
-        if(built_soldier_count<10*ideal_soldier_count &&(rc.getRoundNum()>10 || built_miner_count>6) ){
+        if(built_soldier_count<10*ideal_soldier_count &&(rc.getRoundNum()>10 || built_miner_count>=2*rc.getArchonCount()) ){
             float soldier_progression =  built_soldier_count/(float) ideal_soldier_count;
             if(soldier_progression < progression ){
                 ret = RobotType.SOLDIER;
@@ -88,7 +84,7 @@ public class Archon extends Robot {
             }
         }
 
-        if(built_builder_count<10*ideal_builder_count && (built_soldier_count + built_watch_tower_count>20 || rc.getTeamLeadAmount(rc.getTeam())>1000)  ){
+        if(built_builder_count<10*ideal_builder_count && built_builder_count<=built_watch_tower_count && (built_soldier_count + built_watch_tower_count>20 || rc.getTeamLeadAmount(rc.getTeam())>1000)  ){
             float builder_progression = built_builder_count/(float) ideal_builder_count;
             if(builder_progression < progression ){
                 ret = RobotType.BUILDER;

@@ -15,14 +15,13 @@ public class Archon extends Robot {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         // stuff that this type of bot does.
-
         if(rc.getMode()==RobotMode.PORTABLE){
             int v = rc.readSharedArray(2);
             nav.navigate(new MapLocation((v>>6)&0b111111,v&0b111111) );
         }else {
 
             RobotType tb_built = decideNext();
-            if (tb_built != null) {
+            if (tb_built != null && rc.getTeamLeadAmount(rc.getTeam())>tb_built.buildCostLead) {
                 int lowest_rubble = 100;
                 Direction lowest_rubble_direction = null;
                 for (int i = 0; i < 8; i++) {
@@ -38,14 +37,20 @@ public class Archon extends Robot {
                 if(lowest_rubble_direction!=null){
                     rc.buildRobot(tb_built,lowest_rubble_direction);
                 }
-            } else {
+            }
+
+            if (rc.isActionReady()) {
+                float highest_benefit=-1;
+                RobotInfo to_fix=null;
                 for (RobotInfo unit : nearby_ally_units) {
-                    if (!rc.isActionReady()) break;
-                    if (unit.health < unit.type.getMaxHealth(unit.level) && unit.location.isWithinDistanceSquared(rc.getLocation(), 20)) {
-                        while (rc.canRepair(unit.location)) {
-                            rc.repair(unit.location);
-                        }
+                    float benefit = unit.type.getDamage(unit.level)/(float)unit.health;
+                    if (benefit > highest_benefit && unit.location.isWithinDistanceSquared(rc.getLocation(), 20)&&rc.canRepair(unit.location)) {
+                        highest_benefit=benefit;
+                        to_fix=unit;
                     }
+                }
+                if(to_fix!=null){
+                    rc.repair(to_fix.location);
                 }
             }
         }
@@ -53,10 +58,6 @@ public class Archon extends Robot {
         if(rc.getRoundNum()==400){
             Com.analyzeTargets();
         }
-    }
-
-    private void opener() throws GameActionException {
-
     }
 
     private RobotType decideNext() throws GameActionException{

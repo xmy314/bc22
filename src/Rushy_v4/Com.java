@@ -162,7 +162,7 @@ public class Com {
 
         boolean is_moving=rc.getMode()==RobotMode.DROID || rc.getMode()==RobotMode.PORTABLE;
 
-        int tbw = 0b100;
+        int tbw = 0b000;
         // using enemy count as the scheme would turn away miners from component miner whom they want to compete against.
         // the result is generally lower economy then it could have had.
         if (enemy_dmg > 0) {
@@ -171,9 +171,7 @@ public class Com {
         if ( is_moving && ally_miner_count < 3 * mine_over_thresh_count) {
             tbw |= 0b10;
         }
-        if (nearby_ally_units.length >= ((rc.getRoundNum()<200)?0:1) ) {
-            tbw &= 0b011;
-        }
+        // third digit is always 0 as belong to this chunk automatically makes it not empty.
 
         if (is_moving) {
             setTarget(0b111, tbw, rc.getLocation());

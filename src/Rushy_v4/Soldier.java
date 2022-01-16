@@ -4,8 +4,6 @@ import battlecode.common.*;
 
 public class Soldier extends Robot {
 
-    int combat_round = 0;
-
     public Soldier(RobotController rc) throws GameActionException {
         super(rc);
     }
@@ -15,37 +13,113 @@ public class Soldier extends Robot {
 
 
         // Try to attack someone
-
         if (nearby_enemy_units.length > 0) {
             combat();
-        }else {
+        } else {
             safeMovement();
         }
     }
 
     public void combat() throws GameActionException {
-        MapLocation toAttack = chooseAttackTarget(nearby_enemy_units).location;
-        if(ally_dmg*ally_health>enemy_dmg*enemy_health) {
-            Direction best_dir=null;
-            int best_rubble=1000;
-            for(Direction dir:directions){
-                if (rc.adjacentLocation(dir).isWithinDistanceSquared(toAttack,13) && rc.onTheMap(rc.adjacentLocation(dir))) {
-                    int n_rubble = rc.senseRubble(rc.adjacentLocation(dir));
-                    if(n_rubble<best_rubble){
-                        best_rubble=n_rubble;
-                        best_dir=dir;
-                    }
+
+        if (rc.isMovementReady()) {
+            SoldierMicroInfo[] micro_infos = new SoldierMicroInfo[9];
+            for (int i = 0; i < 8; i++) {
+                micro_infos[i] = new SoldierMicroInfo(rc.adjacentLocation(directions[i]));
+            }
+            micro_infos[8] = new SoldierMicroInfo(rc.getLocation());
+
+            for (RobotInfo nearby_enemy_unit : nearby_enemy_units) {
+                for (SoldierMicroInfo micro_info : micro_infos) {
+                    micro_info.update(nearby_enemy_unit);
                 }
             }
-            nav.moveWrapper(best_dir);
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
+
+            int best_dex = 8;
+            for (int i = 0; i < 8; i++) {
+                if(!rc.canMove(directions[i]))continue;
+                if (micro_infos[i].isBetter(micro_infos[best_dex])) {
+                    best_dex = i;
+                }
             }
-        }else{
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
+
+            if (best_dex == 8) {
+                RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
+                if(toAttack!=null) rc.attack(toAttack.location);
+            } else if (micro_infos[best_dex].rubble < micro_infos[8].rubble) {
+                nav.moveWrapper(directions[best_dex]);
+                RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
+                if(toAttack!=null) rc.attack(toAttack.location);
+            } else {
+                RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
+                if(toAttack!=null) rc.attack(toAttack.location);
+                nav.moveWrapper(directions[best_dex]);
             }
-            nav.navigate(spawn_point);
+
+        } else {
+            RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
+            if(toAttack!=null) rc.attack(toAttack.location);
+        }
+
+    }
+
+    static class SoldierMicroInfo {
+        float potential_dmg;
+        int min_dist_to_enemy;
+        MapLocation loc;
+        boolean on_map;
+        int rubble;
+
+        public SoldierMicroInfo(MapLocation loc) {
+            this.loc = loc;
+            try {
+                on_map = rc.onTheMap(loc);
+                if (on_map) {
+                    rubble = rc.senseRubble(loc);
+                }
+            } catch (GameActionException e) {
+                e.printStackTrace(); // never happening as sense is always radius 1 away
+            }
+            potential_dmg = 0;
+            min_dist_to_enemy = 10000;
+        }
+
+        public void update(RobotInfo ri) {
+            int d = ri.getLocation().distanceSquaredTo(loc);
+            try {
+                if (d <= ri.getType().actionRadiusSquared)
+                    potential_dmg += Math.abs(ri.type.getDamage(ri.level) / (1 + rc.senseRubble(ri.getLocation()) / 10));
+            } catch (GameActionException e) {
+                e.printStackTrace(); // never happening since all input are within vision range.
+            }
+            if (d < min_dist_to_enemy) min_dist_to_enemy = d;
+        }
+
+        public boolean canAttack() {
+            return rc.getType().actionRadiusSquared >= min_dist_to_enemy;
+        }
+
+        public boolean isBetter(SoldierMicroInfo mi) {
+            // on map is better
+            if (on_map && !mi.on_map) return true;
+            if (!on_map && mi.on_map) return false;
+
+            // low potential_damage is better. however, there is a buffer.
+            if (potential_dmg + 2 < mi.potential_dmg) return true;
+            if (potential_dmg > mi.potential_dmg + 2) return false;
+
+            // low rubble is better. here the cut-off is 2 times
+            if (2*(rubble + 10) < (mi.rubble+10)) return true;
+            if ((rubble + 10) > 2*(mi.rubble+10)) return false;
+
+            // can attack is better
+            if (rc.isActionReady()) {
+                if (canAttack() && !mi.canAttack()) return true;
+                if (!canAttack() && mi.canAttack()) return false;
+            }
+
+            // low rubble is better
+            return rubble < mi.rubble;
         }
     }
 
@@ -57,12 +131,12 @@ public class Soldier extends Robot {
         if (!rc.isMovementReady()) return;
 
         if (consistent_target != null && debugOn) {
-            if(debugOn) rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 0, 0);
+            if (debugOn) rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 0, 0);
         }
 
         // check if there is any mission by communication
         if (consistent_target != null) {
-            if (    rc.getLocation().isWithinDistanceSquared(consistent_target, 13) ||
+            if (rc.getLocation().isWithinDistanceSquared(consistent_target, 13) ||
                     consistent_rounds >= 30 ||
                     is_target_from_com && (Com.getFlags(consistent_target) & 0b101) == 0) {
                 consistent_target = null;
@@ -72,14 +146,14 @@ public class Soldier extends Robot {
         }
 
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b001,0b001,6); // military support
+            consistent_target = Com.getTarget(0b001, 0b001, 6); // military support
             if (consistent_target != null) {
                 is_target_from_com = true;
             }
         }
 
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b100,0b100,12); // pioneer
+            consistent_target = Com.getTarget(0b100, 0b100, 12); // pioneer
             if (consistent_target != null) {
                 is_target_from_com = true;
             }
