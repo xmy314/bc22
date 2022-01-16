@@ -1,10 +1,10 @@
-package Rushy_v4;
+package Rushy_v5;
 
 import battlecode.common.*;
 
 public class Robot {
 
-    final public static boolean debugOn = false;
+    final public static boolean debugOn = true;
 
     static final Direction[] directions = {
             Direction.NORTH,

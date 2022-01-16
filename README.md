@@ -67,7 +67,7 @@ Rushy_v2 is an improved version Rushy_v1.
 Rushy_v3 is a slightly improved version of Rushy_v2
 * only have small advantage over Rushy_v2. most of which coming from modifying magic numbers.
 
-Rushy_v4 is an improved version of Rushy_v3.
+Rushy_v5 is an improved version of Rushy_v3.
 * better Soldier micro and build order.
 
 TODO:
