@@ -70,7 +70,7 @@ Rushy_v3 is a slightly improved version of Rushy_v2
 Rushy_v4 is an improved version of Rushy_v3.
 * better Soldier micro and build order. (a bit too defensive)
 
-Rushy_v5 is an improved version* of rushy_v4
+Rushy_v6 is an improved version* of rushy_v4
 * changed build order to have more soldiers when there are more than 10 miners
 * changed coms to adapt to map shape and change chunks in to squares.
 * changed miners to be smarter at not running into enemy.
