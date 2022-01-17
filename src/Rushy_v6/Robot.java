@@ -93,7 +93,7 @@ public class Robot {
                     break;
                 case ARCHON:
                     ally_archon_in_sight = true;
-                    enemy_dmg -=2;
+                    ally_dmg+=1;
                     break;
                 case MINER:
                     ally_miner_count++;
@@ -114,7 +114,7 @@ public class Robot {
                     break;
                 case ARCHON:
                     enemy_archon_in_sight=true;
-                    ally_dmg -=2;
+                    enemy_dmg+=1;
                     break;
             }
         }

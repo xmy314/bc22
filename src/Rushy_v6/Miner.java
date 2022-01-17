@@ -59,7 +59,6 @@ public class Miner extends Robot {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 MapLocation mineLocation = rc.getLocation().translate(dx, dy);
-                // Notice that the Miner's action cool down is very low.
                 // You can mine multiple times per turn!
 
                 while (rc.canMineGold(mineLocation)) {

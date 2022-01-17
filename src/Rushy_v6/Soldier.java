@@ -64,7 +64,7 @@ public class Soldier extends Robot {
     }
 
     static class SoldierMicroInfo {
-        float potential_dmg;
+        float potential_dmg; // assuming all known enemy that can attack me attacks me, how much health do i lose of average
         int min_dist_to_enemy;
         MapLocation loc;
         boolean on_map;
@@ -106,12 +106,8 @@ public class Soldier extends Robot {
             if (!on_map) return false;
 
             // low potential_damage is better. however, there is a buffer.
-            if (potential_dmg + 2 < mi.potential_dmg) return true;
-            if (potential_dmg > mi.potential_dmg + 2) return false;
-
-            // low rubble is better. here the cut-off is 2 times
-            if (1.2f*(rubble + 10) < (mi.rubble+10)) return true;
-            if ((rubble + 10) > 1.2f*(mi.rubble+10)) return false;
+            if ((potential_dmg + 3)*(1+rubble/10f) < (mi.potential_dmg)*(1+mi.rubble/10f)) return true;
+            if ((potential_dmg)*(1+rubble/10f) > (mi.potential_dmg + 3)*(1+mi.rubble/10f)) return false;
 
             // can attack is better
             if (rc.isActionReady()) {
