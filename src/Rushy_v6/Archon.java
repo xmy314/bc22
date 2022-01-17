@@ -54,7 +54,7 @@ public class Archon extends Robot {
             }
         } else {
             if (debugOn) rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 200, 200);
-            if (!rc.getLocation().isWithinDistanceSquared(consistent_target, 16) && enemy_dmg<2) {
+            if (!rc.getLocation().isWithinDistanceSquared(consistent_target, 16)) {
                 nav.navigate(consistent_target);
             } else {
                 int best_dex = 8;
@@ -97,7 +97,7 @@ public class Archon extends Robot {
         RobotType ret = null;
         float progression = 10;
 
-        if (built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 40)) {
+        if (built_miner_count<2 || built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 40)) {
             float miner_progression = built_miner_count / (float) ideal_miner_count;
             if (miner_progression < progression) {
                 ret = RobotType.MINER;
