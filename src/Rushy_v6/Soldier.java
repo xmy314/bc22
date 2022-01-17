@@ -11,6 +11,7 @@ public class Soldier extends Robot {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
 
+        Com.armyInterchange();
 
         // Try to attack someone
         if (nearby_enemy_units.length > 0) {
@@ -37,28 +38,28 @@ public class Soldier extends Robot {
 
             int best_dex = 8;
             for (int i = 0; i < 8; i++) {
-                if(!rc.canMove(directions[i]))continue;
+                if (!rc.canMove(directions[i])) continue;
                 if (micro_infos[i].isBetter(micro_infos[best_dex])) {
                     best_dex = i;
                 }
             }
 
             if (best_dex == 8) {
-                RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
-                if(toAttack!=null) rc.attack(toAttack.location);
+                RobotInfo toAttack = chooseAttackTarget(nearby_enemy_units);
+                if (toAttack != null) rc.attack(toAttack.location);
             } else if (micro_infos[best_dex].rubble < micro_infos[8].rubble) {
                 nav.moveWrapper(directions[best_dex]);
-                RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
-                if(toAttack!=null) rc.attack(toAttack.location);
+                RobotInfo toAttack = chooseAttackTarget(nearby_enemy_units);
+                if (toAttack != null) rc.attack(toAttack.location);
             } else {
-                RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
-                if(toAttack!=null) rc.attack(toAttack.location);
+                RobotInfo toAttack = chooseAttackTarget(nearby_enemy_units);
+                if (toAttack != null) rc.attack(toAttack.location);
                 nav.moveWrapper(directions[best_dex]);
             }
 
         } else {
-            RobotInfo toAttack=chooseAttackTarget(nearby_enemy_units);
-            if(toAttack!=null) rc.attack(toAttack.location);
+            RobotInfo toAttack = chooseAttackTarget(nearby_enemy_units);
+            if (toAttack != null) rc.attack(toAttack.location);
         }
 
     }
@@ -69,6 +70,7 @@ public class Soldier extends Robot {
         MapLocation loc;
         boolean on_map;
         int rubble;
+        double cost_mult;
 
         public SoldierMicroInfo(MapLocation loc) {
             this.loc = loc;
@@ -76,16 +78,17 @@ public class Soldier extends Robot {
                 on_map = rc.onTheMap(loc);
                 if (on_map) {
                     rubble = rc.senseRubble(loc);
+                    cost_mult = Math.pow(1+rubble/10f,2);
+                    potential_dmg = 0;
+                    min_dist_to_enemy = 10000;
                 }
             } catch (GameActionException e) {
                 e.printStackTrace(); // never happening as sense is always radius 1 away
             }
-            potential_dmg = 0;
-            min_dist_to_enemy = 10000;
         }
 
         public void update(RobotInfo ri) {
-            if(!on_map) return;
+            if (!on_map) return;
             int d = ri.getLocation().distanceSquaredTo(loc);
             try {
                 if (d <= ri.getType().actionRadiusSquared)
@@ -106,8 +109,8 @@ public class Soldier extends Robot {
             if (!on_map) return false;
 
             // low potential_damage is better. however, there is a buffer.
-            if ((potential_dmg + 3)*(1+rubble/10f) < (mi.potential_dmg)*(1+mi.rubble/10f)) return true;
-            if ((potential_dmg)*(1+rubble/10f) > (mi.potential_dmg + 3)*(1+mi.rubble/10f)) return false;
+            if ((potential_dmg + 4) * cost_mult < (mi.potential_dmg + 1) * mi.cost_mult) return true;
+            if ((potential_dmg + 1) * cost_mult > (mi.potential_dmg + 4) * mi.cost_mult) return false;
 
             // can attack is better
             if (rc.isActionReady()) {

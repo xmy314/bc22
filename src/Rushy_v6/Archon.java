@@ -19,31 +19,7 @@ public class Archon extends Robot {
         super.takeTurn();
 
         // stuff that this type of bot does.
-        if (rc.getMode() == RobotMode.PORTABLE) {
-            rc.setIndicatorLine(rc.getLocation(), Com.getMainArchonLoc(), 200, 200, 200);
-            if (!rc.getLocation().isWithinDistanceSquared(Com.getMainArchonLoc(), 20)) {
-                nav.navigate(Com.getMainArchonLoc());
-            } else {
-                int best_dex = 8;
-                int lowest_rubble = rc.senseRubble(rc.getLocation());
-                for (int i = 0; i < 8; i++) {
-                    if (rc.onTheMap(rc.adjacentLocation(directions[i])) && rc.canMove(directions[i]) && rc.adjacentLocation(directions[i]).isWithinDistanceSquared(Com.getMainArchonLoc(), 20)) {
-                        int rubble_count = rc.senseRubble(rc.adjacentLocation(directions[i]));
-                        if (rubble_count < lowest_rubble) {
-                            lowest_rubble = rubble_count;
-                            best_dex = i;
-                        }
-                    }
-                }
-                if (best_dex != 8) {
-                    nav.moveWrapper(directions[best_dex]);
-                } else {
-                    if (rc.canTransform()) {
-                        rc.transform();
-                    }
-                }
-            }
-        } else {
+        if (rc.getMode() == RobotMode.TURRET) {
             RobotType tb_built = decideNext();
             if (tb_built != null && rc.getTeamLeadAmount(rc.getTeam()) > tb_built.buildCostLead) {
                 int lowest_rubble = 100;
@@ -61,11 +37,12 @@ public class Archon extends Robot {
                 if (lowest_rubble_direction != null) {
                     rc.buildRobot(tb_built, lowest_rubble_direction);
                 }
-            } else if (!rc.getLocation().isWithinDistanceSquared(Com.getMainArchonLoc(), 100) && rc.getRoundNum() > 20) {
+            }else if(!rc.getLocation().isWithinDistanceSquared(Com.getMainArchonLoc(), 25) && rc.getRoundNum()>10){
                 if (rc.canTransform()) {
                     rc.transform();
+                    consistent_target = Com.getMainArchonLoc();
                 }
-            } else {
+            }else {
                 for (RobotInfo unit : nearby_ally_units) {
                     if (!rc.isActionReady()) break;
                     if (unit.health < unit.type.getMaxHealth(unit.level) && unit.location.isWithinDistanceSquared(rc.getLocation(), 20)) {
@@ -75,12 +52,36 @@ public class Archon extends Robot {
                     }
                 }
             }
+        } else {
+            if (debugOn) rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 200, 200);
+            if (!rc.getLocation().isWithinDistanceSquared(consistent_target, 16) && enemy_dmg<2) {
+                nav.navigate(consistent_target);
+            } else {
+                int best_dex = 8;
+                int lowest_rubble = rc.senseRubble(rc.getLocation());
+                for (int i = 0; i < 8; i++) {
+                    if (rc.onTheMap(rc.adjacentLocation(directions[i])) && rc.canMove(directions[i]) && rc.adjacentLocation(directions[i]).isWithinDistanceSquared(consistent_target, 16)) {
+                        int rubble_count = rc.senseRubble(rc.adjacentLocation(directions[i]));
+                        if (rubble_count < lowest_rubble) {
+                            lowest_rubble = rubble_count;
+                            best_dex = i;
+                        }
+                    }
+                }
+                if (best_dex != 8  && rc.canMove(directions[best_dex])) {
+                    nav.moveWrapper(directions[best_dex]);
+                } else {
+                    if (rc.canTransform()) {
+                        rc.transform();
+                        Com.archonInterchange();
+                    }
+                }
+            }
         }
 
         if (rc.getRoundNum() % 200 == 199) {
             Com.partialResetExploration();
         }
-
     }
 
     private RobotType decideNext() throws GameActionException {
@@ -96,7 +97,7 @@ public class Archon extends Robot {
         RobotType ret = null;
         float progression = 10;
 
-        if (built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 80)) {
+        if (built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 40)) {
             float miner_progression = built_miner_count / (float) ideal_miner_count;
             if (miner_progression < progression) {
                 ret = RobotType.MINER;

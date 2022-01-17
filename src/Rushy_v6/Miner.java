@@ -94,9 +94,13 @@ public class Miner extends Robot {
             }
         }
 
-        if(enemy_dmg >0 && ally_dmg <=0 || (Com.getFlags(rc.getLocation())&1)!=0){
+        if(enemy_dmg >0 || (Com.getFlags(rc.getLocation())&1)!=0){
             if(consistent_target!=null)Com.setTarget(0b1,0b1,consistent_target);
-            consistent_target=spawn_point;
+            if(nearby_enemy_units.length>0) {
+                consistent_target = rc.getLocation().translate(rc.getLocation().x- nearby_enemy_units[0].location.x,rc.getLocation().y- nearby_enemy_units[0].location.y);
+            }else{
+                consistent_target = spawn_point;
+            }
             is_target_from_com = false;
         }
 
@@ -108,7 +112,7 @@ public class Miner extends Robot {
         }
 
         if (consistent_target == null) {
-            if (ally_miner_count > 5 || Com.getHeadcount(RobotType.MINER)<20) {
+            if (ally_miner_count > 5 || Com.getHeadcount(RobotType.MINER)<10) {
                 consistent_target = Com.getTarget(0b101,0b100,12); // pioneer, but don't run to enemy
                 if (consistent_target != null) {
                     is_target_from_com = true;
@@ -118,7 +122,7 @@ public class Miner extends Robot {
 
 
         if (consistent_target == null) {
-            consistent_target = Com.getTarget(0b011,0b010,4); // mine, don't run to enemy
+            consistent_target = Com.getTarget(0b011,0b010,12); // mine, don't run to enemy
             if (consistent_target != null) {
                 is_target_from_com = true;
             }

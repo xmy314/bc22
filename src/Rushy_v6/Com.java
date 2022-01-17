@@ -8,6 +8,8 @@ public class Com {
     /*
     0 - 1 are for head counting units. written when each unit is created and whe they are about to die.
     2 is for location of base and its nearby rubble count.
+    3 is for location of the army. should have been mode but mean also works.
+        most protected and most dangerous point on the map.
     4 -19 are for map data for a total of 256 bit.
         the map is divided into 64 chunks, 8 along x and 8 along y.
         each chunk has 4 bits of properties.
@@ -168,25 +170,37 @@ public class Com {
     }
 
     public static void verifyTargets() throws GameActionException {
-        int tbw = 0b000;
+        int current_chunk_id = mapLocationToChunkID(rc.getLocation());
+        boolean can_negate = rc.getLocation().isWithinDistanceSquared(getChunkCenter(current_chunk_id), 10);
+
+        setTarget(0b100, 0b000, current_chunk_id);
+
         // using enemy count as the scheme would turn away miners from component miner whom they want to compete against.
         // the result is generally lower economy then it could have had.
-        if (nearby_enemy_units.length>0) {
-            tbw |= 0b1;
+        // TODO: this portion is fairly expensive but optimization can be done.
+        boolean enemy_on_current_chunk = false;
+        for (RobotInfo unit : nearby_enemy_units) {
+            int unit_chunk_id = mapLocationToChunkID(unit.location);
+            setTarget(0b1, 0b1, unit_chunk_id);
+            if (unit_chunk_id == current_chunk_id) {
+                enemy_on_current_chunk = true;
+            }
         }
-        if (ally_miner_count < 3 * mine_over_thresh_count) {
-            tbw |= 0b10;
-        }
-
-        int write_mask=0;
-        if(rc.getLocation().distanceSquaredTo(getChunkCenter(mapLocationToChunkID(rc.getLocation())))<=5){
-            write_mask|=0b101;
-        }
-        if(rc.getMode() == RobotMode.DROID || rc.getMode() == RobotMode.PORTABLE){
-            write_mask|=0b010;
+        if (!enemy_on_current_chunk && can_negate) {
+            setTarget(0b1, 0b0, current_chunk_id);
         }
 
-        setTarget(write_mask, tbw, rc.getLocation());
+        boolean mine_on_current_chunk = false;
+        for (MapLocation mine : mines) {
+            int unit_chunk_id = mapLocationToChunkID(mine);
+            setTarget(0b10, 0b10, unit_chunk_id);
+            if (unit_chunk_id == current_chunk_id) {
+                mine_on_current_chunk = true;
+            }
+        }
+        if (!mine_on_current_chunk && can_negate) {
+            setTarget(0b10, 0b00, current_chunk_id);
+        }
 
         //TODO: following is only for debugging
         if (debugOn && rc.getType() == RobotType.ARCHON) {
@@ -222,12 +236,12 @@ public class Com {
     }
 
     public static void partialResetExploration() throws GameActionException {
-        setTarget(0b100,0b100,0);
-        setTarget(0b100,0b100,chunk_count_y-1);
-        setTarget(0b100,0b100,(chunk_count_x-1)*chunk_count_y);
-        setTarget(0b100,0b100,total_chunk_count-1);
-        for(int i=0;i<10;i++){
-            setTarget(0b100,0b100,rng.nextInt(chunk_count_x)*chunk_count_y + rng.nextInt(chunk_count_y));
+        setTarget(0b100, 0b100, 0);
+        setTarget(0b100, 0b100, chunk_count_y - 1);
+        setTarget(0b100, 0b100, (chunk_count_x - 1) * chunk_count_y);
+        setTarget(0b100, 0b100, total_chunk_count - 1);
+        for (int i = 0; i < 10; i++) {
+            setTarget(0b100, 0b100, rng.nextInt(chunk_count_x) * chunk_count_y + rng.nextInt(chunk_count_y));
         }
     }
 
@@ -460,7 +474,7 @@ public class Com {
 
         }
 
-        return (int) (16 * Math.sqrt(rubble_sum / (100*sense_count)));
+        return (int) (16 * Math.sqrt(rubble_sum / (100 * sense_count)));
     }
 
     public static void archonInterchange() throws GameActionException {
@@ -469,13 +483,29 @@ public class Com {
 
         if (v == 0 || env < (v >> 12)) {
             Debug.p(env);
-            rc.writeSharedArray(2, (env << 12) | (rc.getLocation().x<<6) | (rc.getLocation().y));
+            rc.writeSharedArray(2, (env << 12) | (rc.getLocation().x << 6) | (rc.getLocation().y));
         }
     }
 
-    public static MapLocation getMainArchonLoc() throws GameActionException{
+    public static MapLocation getMainArchonLoc() throws GameActionException {
         int v = rc.readSharedArray(2);
-        return new MapLocation((v>>6)&0b111111,v&0b111111);
+        return new MapLocation((v >> 6) & 0b111111, v & 0b111111);
+    }
+
+    public static void armyInterchange() throws GameActionException {
+        int v = rc.readSharedArray(3);
+
+        MapLocation loc = rc.getLocation();
+        int soldier_count = getHeadcount(RobotType.SOLDIER);
+        int n_x = (((v >> 8)) * soldier_count + 4*loc.x) / (soldier_count + 1);
+        int n_y = ((v & 0b11111111) * soldier_count + 4*loc.y) / (soldier_count + 1);
+
+        rc.writeSharedArray(3, (n_x << 8) | (n_y));
+    }
+
+    public static MapLocation getArmyLoc() throws GameActionException {
+        int v = rc.readSharedArray(3);
+        return new MapLocation((v >> 10) , (v>>2) & 0b111111);
     }
 
     public static void incrementHeadCount() throws GameActionException {

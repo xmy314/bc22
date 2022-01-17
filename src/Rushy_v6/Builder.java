@@ -13,7 +13,7 @@ public class Builder extends Robot {
         super.takeTurn();
         // stuff that this type of bot does.
 
-        if (  ally_archon_in_sight || (current_project == null && (nearby_ally_units.length > 30 && (rc.getLocation().x & rc.getLocation().y & 1) != 1) ) ) {
+        if ( current_project == null && (nearby_ally_units.length > 30 && (rc.getLocation().x & rc.getLocation().y & 1) != 1)  ) {
             if(debugOn) rc.setIndicatorString("trying to move");
             movement();
         } else {
@@ -34,7 +34,7 @@ public class Builder extends Robot {
         if (current_project == null) {
             RobotInfo[] units_in_action_range = rc.senseNearbyRobots(5, rc.getTeam());
             for (RobotInfo unit : units_in_action_range) {
-                if (unit.mode == RobotMode.PROTOTYPE) {
+                if (unit.health<unit.type.getMaxHealth(unit.level) && rc.canRepair(unit.location)) {
                     current_project = unit;
                     break;
                 }
