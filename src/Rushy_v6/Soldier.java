@@ -109,8 +109,8 @@ public class Soldier extends Robot {
             if (!on_map) return false;
 
             // low potential_damage is better. however, there is a buffer.
-            if ((potential_dmg + 4) * cost_mult < (mi.potential_dmg + 1) * mi.cost_mult) return true;
-            if ((potential_dmg + 1) * cost_mult > (mi.potential_dmg + 4) * mi.cost_mult) return false;
+            if ((potential_dmg + 3) * cost_mult < (mi.potential_dmg + 1) * mi.cost_mult) return true;
+            if ((potential_dmg + 1) * cost_mult > (mi.potential_dmg + 3) * mi.cost_mult) return false;
 
             // can attack is better
             if (rc.isActionReady()) {
