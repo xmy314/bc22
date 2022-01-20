@@ -11,4 +11,8 @@ public class Sage extends Robot {
         super.takeTurn();
         // stuff that this type of bot does.
     }
+
+    public void combat() throws GameActionException{
+
+    }
 }

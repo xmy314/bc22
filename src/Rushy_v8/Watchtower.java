@@ -5,6 +5,7 @@ import battlecode.common.*;
 public class Watchtower extends Robot {
 
     int moved_for_attack = 0;
+    int peace_count_down=0;
 
     public Watchtower(RobotController rc) throws GameActionException {
         super(rc);
@@ -25,7 +26,7 @@ public class Watchtower extends Robot {
             // if it should push, push.
 
             if(rc.getMode()==RobotMode.TURRET){
-                if(ally_dmg - enemy_dmg >3 && (rc.getLocation().x&1)!=(rc.getLocation().y&1) &&moved_for_attack<move_threshold_round){
+                if(ally_dmg - enemy_dmg >10 && (rc.getLocation().x&1)!=(rc.getLocation().y&1) &&moved_for_attack<move_threshold_round){
                     if(rc.isTransformReady()){
                         rc.transform();
                     }
@@ -34,20 +35,24 @@ public class Watchtower extends Robot {
                     if (toAttack!=null) rc.attack(toAttack.location);
                 }
             }else if(rc.getMode()==RobotMode.PORTABLE){
-                if(moved_for_attack<3){
+                if(moved_for_attack<2){
                     if(nav.navigate(nearby_enemy_units[0].location)) moved_for_attack++;
                 }else if(rc.isTransformReady()){
                     rc.transform();
                 }
             }
+            peace_count_down=10;
         }else{
-            // in the safe zone, make sure minimum protect exists and continue walking.
-            if(rc.getMode()==RobotMode.TURRET){
-                if(rc.isTransformReady()){
-                    rc.transform();
+            peace_count_down--;
+            if(peace_count_down<=0) {
+                // in the safe zone, make sure minimum protect exists and continue walking.
+                if (rc.getMode() == RobotMode.TURRET) {
+                    if (rc.isTransformReady()) {
+                        rc.transform();
+                    }
+                } else {
+                    safeMovement();
                 }
-            }else{
-                safeMovement();
             }
         }
     }

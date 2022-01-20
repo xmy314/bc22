@@ -10,7 +10,8 @@ public class Archon extends Robot {
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
         ideal_miner_count = Math.max(10, (max_X * max_Y) / 25); // 16 for 13/turn/square.
-        ideal_builder_count = (max_X * max_Y)/9 ;
+        ideal_soldier_count = 2 * ideal_miner_count;
+        ideal_builder_count =  ideal_miner_count;
 
         Com.archonInterchange();
     }
@@ -21,7 +22,7 @@ public class Archon extends Robot {
         // stuff that this type of bot does.
         if (rc.getMode() == RobotMode.TURRET) {
             RobotType tb_built = decideNext();
-            if (tb_built != null && rc.getTeamLeadAmount(rc.getTeam()) > tb_built.buildCostLead) {
+            if (tb_built != null) {
                 int lowest_rubble = 100;
                 Direction lowest_rubble_direction = null;
                 for (int i = 0; i < 8; i++) {
@@ -37,12 +38,12 @@ public class Archon extends Robot {
                 if (lowest_rubble_direction != null) {
                     rc.buildRobot(tb_built, lowest_rubble_direction);
                 }
-            }else if(!rc.getLocation().isWithinDistanceSquared(Com.getMainArchonLoc(), 25) && rc.getRoundNum()>50){
+            } else if (!rc.getLocation().isWithinDistanceSquared(Com.getMainArchonLoc(), 24) && rc.getRoundNum() > 50) {
                 if (rc.canTransform()) {
                     rc.transform();
                     consistent_target = Com.getMainArchonLoc();
                 }
-            }else {
+            } else {
                 for (RobotInfo unit : nearby_ally_units) {
                     if (!rc.isActionReady()) break;
                     if (unit.health < unit.type.getMaxHealth(unit.level) && unit.location.isWithinDistanceSquared(rc.getLocation(), 20)) {
@@ -54,13 +55,13 @@ public class Archon extends Robot {
             }
         } else {
             if (debugOn) rc.setIndicatorLine(rc.getLocation(), consistent_target, 200, 200, 200);
-            if (!rc.getLocation().isWithinDistanceSquared(consistent_target, 16)) {
+            if (!rc.getLocation().isWithinDistanceSquared(consistent_target, 24)) {
                 nav.navigate(consistent_target);
             } else {
                 int best_dex = 8;
                 int lowest_rubble = rc.senseRubble(rc.getLocation());
                 for (int i = 0; i < 8; i++) {
-                    if (rc.onTheMap(rc.adjacentLocation(directions[i])) && rc.canMove(directions[i]) && rc.adjacentLocation(directions[i]).isWithinDistanceSquared(consistent_target, 16)) {
+                    if (rc.onTheMap(rc.adjacentLocation(directions[i])) && rc.canMove(directions[i]) && rc.adjacentLocation(directions[i]).isWithinDistanceSquared(consistent_target, 24)) {
                         int rubble_count = rc.senseRubble(rc.adjacentLocation(directions[i]));
                         if (rubble_count < lowest_rubble) {
                             lowest_rubble = rubble_count;
@@ -68,7 +69,7 @@ public class Archon extends Robot {
                         }
                     }
                 }
-                if (best_dex != 8  && rc.canMove(directions[best_dex])) {
+                if (best_dex != 8 && rc.canMove(directions[best_dex])) {
                     nav.moveWrapper(directions[best_dex]);
                 } else {
                     if (rc.canTransform()) {
@@ -85,19 +86,19 @@ public class Archon extends Robot {
     }
 
     private RobotType decideNext() throws GameActionException {
-        MapLocation an_enemy = Com.getTarget(0b001, 0b001, 8);
+        MapLocation an_enemy = Com.getTarget(0b001, 0b001, 6);
 
         int built_miner_count = Com.getHeadcount(RobotType.MINER);
         int built_soldier_count = Com.getHeadcount(RobotType.SOLDIER);
         int built_builder_count = Com.getHeadcount(RobotType.BUILDER);
         int built_watch_tower_count = Com.getHeadcount(RobotType.WATCHTOWER);
 
-        ideal_soldier_count = 2 * ideal_miner_count;
+        int team_lead = rc.getTeamLeadAmount(rc.getTeam());
 
         RobotType ret = null;
         float progression = 10;
 
-        if (built_miner_count<2 || built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 40)) {
+        if (built_miner_count < 2 || built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 40)) {
             float miner_progression = built_miner_count / (float) ideal_miner_count;
             if (miner_progression < progression) {
                 ret = RobotType.MINER;
@@ -113,10 +114,7 @@ public class Archon extends Robot {
             }
         }
 
-        if (built_builder_count < 10 * ideal_builder_count &&
-            built_builder_count <= 1+2*built_watch_tower_count &&
-                (built_soldier_count + built_watch_tower_count > 20 ||
-                rc.getTeamLeadAmount(rc.getTeam()) > 100)) {
+        if (built_builder_count < 10 * ideal_builder_count && built_soldier_count+built_watch_tower_count>=10) {
             float builder_progression = built_builder_count / (float) ideal_builder_count;
             if (builder_progression < progression) {
                 ret = RobotType.BUILDER;
@@ -124,9 +122,28 @@ public class Archon extends Robot {
             }
         }
 
-        if(rc.getRoundNum()>200 && rc.getTeamLeadAmount(rc.getTeam())>150 && rc.getTeamLeadAmount(rc.getTeam())<1000 ){
-            ret=null;
+        if (ret != null) {
+            if (rc.getRoundNum() > 200 && rc.getTeamLeadAmount(rc.getTeam()) > 150 && rc.getTeamLeadAmount(rc.getTeam()) < 400) {
+                ret = null;
+            } else {
+                switch (ret) {
+                    case MINER:
+                        if (team_lead <= 50) ret = null;
+                        break;
+                    case SOLDIER:
+                        if (team_lead <= 75) ret = null;
+                        break;
+                    case BUILDER:
+                        if (team_lead <= 40) ret = null;
+                        break;
+                }
+            }
         }
+
+
+//        if (rc.getTeamGoldAmount(rc.getTeam()) > 20) {
+//            ret = RobotType.SAGE;
+//        }
 
         return ret;
     }

@@ -80,10 +80,17 @@ Rushy_v5 is an improved version* of rushy_v4
 Rushy_v6
 * minor but significant soldier micro upgrades.
 
-Rushy_v8
+Rushy_v7
+* adapt to post sprint 2 balance update. shift focus back to watchtower and lead farming.
+* implemented soldier healing mechanic.
 
+Rushy_v8
+* slightly more adaptive archon movement.
+* more efficient lead farming through economy.
+* structural change for miner, soldier, builder control.
+* I though minera avoids enemy soldier, but clearly I broke it.
 
 TODO:
-* soldier micro improvement
-* fix coms signal to be where the source of signal is instead of where it is observed.
-* implement laboratory and sages?
+* sage strategy. the wall of destruction
+* implement laboratory properly
+* hierarchical path finding through coms to avoid enemy units.

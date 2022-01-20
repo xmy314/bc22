@@ -4,12 +4,14 @@ import battlecode.common.*;
 
 public class Soldier extends Robot {
 
-    private enum SOLDIER_ACTION_STATE{FIGHT, EXPLORE,HEAL,STALL}
+    private enum SOLDIER_ACTION_STATE {FIGHT, EXPLORE, HEAL, SACRIFICE, STALL}
 
-    public SOLDIER_ACTION_STATE current_state=SOLDIER_ACTION_STATE.STALL;
+    public SOLDIER_ACTION_STATE current_state = SOLDIER_ACTION_STATE.STALL;
+    public int soldier_cap;
 
     public Soldier(RobotController rc) throws GameActionException {
         super(rc);
+        soldier_cap=Math.max(10,max_X*max_Y/25);
     }
 
     public void takeTurn() throws GameActionException {
@@ -37,14 +39,15 @@ public class Soldier extends Robot {
             for (RobotInfo nearby_enemy_unit : nearby_enemy_units) {
                 float dmg = Math.abs(nearby_enemy_unit.type.getDamage(nearby_enemy_unit.level) / (1 + rc.senseRubble(nearby_enemy_unit.getLocation()) / 10f));
                 for (SoldierMicroInfo micro_info : micro_infos) {
-                    micro_info.updateEnemy(nearby_enemy_unit,dmg);
+                    micro_info.updateEnemy(nearby_enemy_unit, dmg);
                 }
             }
 
             int best_dex = 8;
+            int health = (Com.getHeadcount(RobotType.SOLDIER)<soldier_cap)?rc.getHealth():50; // so it doesn't try to get away
             for (int i = 0; i < 8; i++) {
                 if (!rc.canMove(directions[i])) continue;
-                if (micro_infos[i].isBetter(micro_infos[best_dex],rc.getHealth())) {
+                if (micro_infos[i].isBetter(micro_infos[best_dex], health,ally_dmg > 5 * enemy_dmg||rc.getRoundNum()>=1700||Com.getHeadcount(RobotType.WATCHTOWER)>soldier_cap)) {
                     best_dex = i;
                 }
             }
@@ -83,7 +86,7 @@ public class Soldier extends Robot {
                 on_map = rc.onTheMap(loc);
                 if (on_map) {
                     rubble = rc.senseRubble(loc);
-                    cost_multi = Math.pow(1+rubble/10f,2);
+                    cost_multi = Math.pow(1 + rubble / 10f, 2);
                     potential_dmg = 0;
                     min_dist_to_enemy = 10000;
                 }
@@ -103,25 +106,29 @@ public class Soldier extends Robot {
             return rc.getType().actionRadiusSquared >= min_dist_to_enemy;
         }
 
-        public boolean isBetter(SoldierMicroInfo mi,int health) {
+        public boolean isBetter(SoldierMicroInfo mi, int health, boolean just_push) {
             // on map is better
             if (!mi.on_map) return true;
             if (!on_map) return false;
 
             // low potential_damage is better. however, there is a buffer.
-            if ((potential_dmg + 3) * cost_multi < (mi.potential_dmg + 1) * mi.cost_multi) return true;
-            if ((potential_dmg + 1) * cost_multi > (mi.potential_dmg + 3) * mi.cost_multi) return false;
+            if(!just_push) {
+                if ((potential_dmg + 3) * cost_multi < (mi.potential_dmg + 1) * mi.cost_multi) return true;
+                if ((potential_dmg + 1) * cost_multi > (mi.potential_dmg + 3) * mi.cost_multi) return false;
 
-            if(health<20){
-                if(min_dist_to_enemy<=13) {
-                    return min_dist_to_enemy / cost_multi > mi.min_dist_to_enemy / mi.cost_multi;
-                }else{
-                    return min_dist_to_enemy>mi.min_dist_to_enemy;
+                if (health < 12) {
+                    if (min_dist_to_enemy <= 13) {
+                        return min_dist_to_enemy / cost_multi > mi.min_dist_to_enemy / mi.cost_multi;
+                    } else {
+                        return min_dist_to_enemy > mi.min_dist_to_enemy;
+                    }
                 }
-            }
 
-            // low rubble is better
-            return rubble < mi.rubble;
+                // low rubble is better
+                return rubble < mi.rubble;
+            }else{
+                return min_dist_to_enemy*cost_multi < mi.min_dist_to_enemy * mi.cost_multi;
+            }
         }
     }
 
@@ -133,45 +140,48 @@ public class Soldier extends Robot {
         if (!rc.isMovementReady()) return;
 
         // check if there is any mission by communication
-        if(rc.getHealth()<15){
+        if (rc.getHealth() < 15 && Com.getHeadcount(RobotType.SOLDIER)<soldier_cap) {
             current_state = SOLDIER_ACTION_STATE.HEAL;
             consistent_target = Com.getMainArchonLoc();
         }
-        switch (current_state){
+
+        switch (current_state) {
             case FIGHT:
-                if((Com.getFlags(consistent_target) & 0b001)==0){
-                    current_state=SOLDIER_ACTION_STATE.STALL;
-                    consistent_target=null;
+                if ((Com.getFlags(consistent_target) & 0b001) == 0) {
+                    current_state = SOLDIER_ACTION_STATE.STALL;
+                    consistent_target = null;
                 }
                 break;
             case EXPLORE:
-                if((Com.getFlags(consistent_target) & 0b100) == 0){
-                    current_state=SOLDIER_ACTION_STATE.STALL;
-                    consistent_target=null;
+                if ((Com.getFlags(consistent_target) & 0b100) == 0) {
+                    current_state = SOLDIER_ACTION_STATE.STALL;
+                    consistent_target = null;
                 }
                 break;
             case HEAL:
-                if(rc.getHealth()==50){
-                    current_state=SOLDIER_ACTION_STATE.STALL;
-                    consistent_target=null;
+                if (rc.getHealth() == 50) {
+                    current_state = SOLDIER_ACTION_STATE.STALL;
+                    consistent_target = null;
+                }else if((Com.getHeadcount(RobotType.SOLDIER)>soldier_cap || nearby_ally_units.length>30) && rc.getHealth()<15 && nearby_enemy_units.length==0 && rc.senseLead(rc.getLocation())==0){
+                    rc.disintegrate();
                 }
         }
 
-        if (current_state==SOLDIER_ACTION_STATE.STALL) {
-            consistent_target = Com.getTarget(0b001, 0b001, Com.getHeadcount(RobotType.SOLDIER)>50?12:6); // military support
+        if (current_state == SOLDIER_ACTION_STATE.STALL) {
+            consistent_target = Com.getTarget(0b001, 0b001, 6); // military support
             if (consistent_target != null) {
                 current_state = SOLDIER_ACTION_STATE.FIGHT;
             }
         }
 
-        if (current_state==SOLDIER_ACTION_STATE.STALL) {
+        if (current_state == SOLDIER_ACTION_STATE.STALL) {
             consistent_target = Com.getTarget(0b100, 0b100, 12); // pioneer
             if (consistent_target != null) {
                 current_state = SOLDIER_ACTION_STATE.EXPLORE;
             }
         }
 
-        if (current_state!=SOLDIER_ACTION_STATE.STALL && consistent_target != null) {
+        if (current_state != SOLDIER_ACTION_STATE.STALL && consistent_target != null) {
             nav.navigate(consistent_target);
         }
     }

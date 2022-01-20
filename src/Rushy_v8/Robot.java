@@ -120,7 +120,7 @@ public class Robot {
             }
         }
 
-        mines = rc.senseNearbyLocationsWithLead(20,2); // any larger than some other miner can probably get to it first
+        mines = rc.senseNearbyLocationsWithLead(20,16); // any larger than some other miner can probably get to it first
         mine_over_thresh_count = mines.length;
 
         Com.verifyTargets();

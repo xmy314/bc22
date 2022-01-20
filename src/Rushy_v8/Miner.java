@@ -16,9 +16,7 @@ public class Miner extends Robot {
 
         action();
 
-        if(rc.isActionReady()) {
-            movement();
-        }
+        movement();
     }
 
     public void action() throws GameActionException {
@@ -49,15 +47,16 @@ public class Miner extends Robot {
         MapLocation opt_loc = closest_mine;
         for (Direction direction : directions) {
             MapLocation n_loc = closest_mine.add(direction);
-            if (n_loc.x < 0 || n_loc.y < 0 | n_loc.x >= max_X || n_loc.y >= max_Y || !rc.canSenseLocation(n_loc)) continue;
+            if (n_loc.x < 0 || n_loc.y < 0 || n_loc.x >= max_X || n_loc.y >= max_Y || !rc.canSenseLocation(n_loc)) continue;
             int rubble = rc.senseRubble(n_loc);
             if (rubble < lowest_rubble) {
                 opt_loc = n_loc;
                 lowest_rubble = rubble;
             }
         }
-
-        nav.navigate(opt_loc);
+        if(enemy_dmg<=0) {
+            nav.navigate(opt_loc);
+        }
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
@@ -82,7 +81,10 @@ public class Miner extends Robot {
         if (debugOn && consistent_target != null ) rc.setIndicatorLine(rc.getLocation(), consistent_target, 0, 200, 0);
         if (!rc.isMovementReady()) return;
 
-        if(rc.getHealth()<20) current_state=MINER_ACTION_STATES.HEAL;
+        if(rc.getHealth()<20) {
+            current_state = MINER_ACTION_STATES.HEAL;
+            consistent_target=Com.getMainArchonLoc();
+        }
         switch (current_state){
             case MINE:
                 if((Com.getFlags(consistent_target) & 0b011) != 0b010){
@@ -119,7 +121,7 @@ public class Miner extends Robot {
 
         // find a nearby mine if wasn't able to mine prior trying to move
         if (current_state==MINER_ACTION_STATES.STALL) {
-            if (ally_miner_count<3 && mine_over_thresh_count>0 || mine_over_thresh_count > ally_miner_count) {
+            if (mine_over_thresh_count > 4*ally_miner_count) {
                 consistent_target = mines[rc.getID() % mine_over_thresh_count];
                 current_state = MINER_ACTION_STATES.MINE;
             }

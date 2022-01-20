@@ -80,7 +80,7 @@ public class Com {
         int current_chunk_x = rc.getLocation().x / chunk_side_length;
         int current_chunk_y = rc.getLocation().y / chunk_side_length;
 
-        int avoidance_counter = rc.getID() %16;
+        int avoidance_counter = rc.getID() % 8;
 
         MapLocation potential_target = null;
 
@@ -180,10 +180,12 @@ public class Com {
         // TODO: this portion is fairly expensive but optimization can be done.
         boolean enemy_on_current_chunk = false;
         for (RobotInfo unit : nearby_enemy_units) {
-            int unit_chunk_id = mapLocationToChunkID(unit.location);
-            setTarget(0b1, 0b1, unit_chunk_id);
-            if (unit_chunk_id == current_chunk_id) {
-                enemy_on_current_chunk = true;
+            if(unit.type.getDamage(unit.level)>0) {
+                int unit_chunk_id = mapLocationToChunkID(unit.location);
+                setTarget(0b1, 0b1, unit_chunk_id);
+                if (unit_chunk_id == current_chunk_id) {
+                    enemy_on_current_chunk = true;
+                }
             }
         }
         if (!enemy_on_current_chunk && can_negate) {
@@ -497,15 +499,15 @@ public class Com {
 
         MapLocation loc = rc.getLocation();
         int soldier_count = getHeadcount(RobotType.SOLDIER);
-        int n_x = (((v >> 8)) * soldier_count + 4*loc.x) / (soldier_count + 1);
-        int n_y = ((v & 0b11111111) * soldier_count + 4*loc.y) / (soldier_count + 1);
+        int n_x = (((v >> 8)) * soldier_count + 4 * loc.x) / (soldier_count + 1);
+        int n_y = ((v & 0b11111111) * soldier_count + 4 * loc.y) / (soldier_count + 1);
 
         rc.writeSharedArray(3, (n_x << 8) | (n_y));
     }
 
     public static MapLocation getArmyLoc() throws GameActionException {
         int v = rc.readSharedArray(3);
-        return new MapLocation((v >> 10) , (v>>2) & 0b111111);
+        return new MapLocation((v >> 10), (v >> 2) & 0b111111);
     }
 
     public static void incrementHeadCount() throws GameActionException {
