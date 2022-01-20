@@ -85,7 +85,7 @@ Rushy_v7
 * implemented soldier healing mechanic.
 
 Rushy_v8
-* slightly more adaptive archon movement.
+* slightly more adaptive archn movement.
 * more efficient lead farming through economy.
 * structural change for miner, soldier, builder control.
 * I though minera avoids enemy soldier, but clearly I broke it.

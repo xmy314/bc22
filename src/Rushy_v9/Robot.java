@@ -1,4 +1,4 @@
-package Rushy_v8;
+package Rushy_v9;
 
 import battlecode.common.*;
 
@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Robot {
 
-    final public static boolean debugOn = false;
+    final public static boolean debugOn = true;
 
     static final Direction[] directions = {
             Direction.NORTH,
