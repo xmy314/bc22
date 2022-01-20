@@ -80,7 +80,7 @@ Rushy_v5 is an improved version* of rushy_v4
 Rushy_v6
 * minor but significant soldier micro upgrades.
 
-Rushy_v7
+Rushy_v8
 
 
 TODO:

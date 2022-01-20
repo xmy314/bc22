@@ -1,7 +1,6 @@
-package skip;
+package Rushy_v8;
 
 import battlecode.common.Clock;
-
 import static Rushy_v8.Robot.debugOn;
 
 public class Debug {
