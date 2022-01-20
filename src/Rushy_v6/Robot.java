@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Robot {
 
-    final public static boolean debugOn = true;
+    final public static boolean debugOn = false;
 
     static final Direction[] directions = {
             Direction.NORTH,

@@ -43,6 +43,7 @@ public class Robot {
     static int ally_miner_count;
     static MapLocation[] mines;
 
+    // for all
     static MapLocation consistent_target;
     static int consistent_rounds;
     static boolean is_target_from_com=false;

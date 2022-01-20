@@ -80,7 +80,7 @@ public class Com {
         int current_chunk_x = rc.getLocation().x / chunk_side_length;
         int current_chunk_y = rc.getLocation().y / chunk_side_length;
 
-        int avoidance_counter = rc.getID() % 4;
+        int avoidance_counter = rc.getID() %16;
 
         MapLocation potential_target = null;
 
@@ -147,7 +147,7 @@ public class Com {
 //            }
         }
 
-        return null;
+        return potential_target;
     }
 
     public static void setTarget(int write_mask, int data_mask, int chunk_id) throws GameActionException {

@@ -34,7 +34,9 @@ public class Watchtower extends Robot {
                     if (toAttack!=null) rc.attack(toAttack.location);
                 }
             }else if(rc.getMode()==RobotMode.PORTABLE){
-                if(rc.isTransformReady()){
+                if(moved_for_attack<3){
+                    if(nav.navigate(nearby_enemy_units[0].location)) moved_for_attack++;
+                }else if(rc.isTransformReady()){
                     rc.transform();
                 }
             }
