@@ -25,8 +25,11 @@ public class Nav {
         rc = r;
         switch (rc.getType().visionRadiusSquared){
             case  34:
+                bfs=new BFS34(rc);
+                break;
             case  20:
                 bfs=new BFS20(rc);
+                break;
         }
     }
 

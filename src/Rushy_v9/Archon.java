@@ -3,21 +3,20 @@ package Rushy_v9;
 import battlecode.common.*;
 
 public class Archon extends Robot {
-    static int ideal_miner_count;
-    static int ideal_builder_count;
-    static int ideal_soldier_count;
 
     public Archon(RobotController rc) throws GameActionException {
         super(rc);
-        ideal_miner_count = Math.max(10, (max_X * max_Y) / 25); // 16 for 13/turn/square.
-        ideal_soldier_count = 2 * ideal_miner_count;
-        ideal_builder_count =  ideal_miner_count;
 
         Com.archonInterchange();
+
+        Com.partialResetExploration();
+        Com.partialResetExploration();
     }
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
+
+        if (debugOn) rc.setIndicatorLine(rc.getLocation(), Com.getArmyLoc(), 200, 200, 200);
 
         // stuff that this type of bot does.
         if (rc.getMode() == RobotMode.TURRET) {
@@ -80,25 +79,23 @@ public class Archon extends Robot {
             }
         }
 
-        if (rc.getRoundNum() % 200 == 199) {
+        if (rc.getRoundNum() % 100 == 99) {
             Com.partialResetExploration();
         }
     }
 
     private RobotType decideNext() throws GameActionException {
-        MapLocation an_enemy = Com.getTarget(0b001, 0b001, 6);
+        MapLocation an_enemy = Com.getTarget(0b001, 0b001, 6, 1);
 
         int built_miner_count = Com.getHeadcount(RobotType.MINER);
         int built_soldier_count = Com.getHeadcount(RobotType.SOLDIER);
         int built_builder_count = Com.getHeadcount(RobotType.BUILDER);
         int built_watch_tower_count = Com.getHeadcount(RobotType.WATCHTOWER);
 
-        int team_lead = rc.getTeamLeadAmount(rc.getTeam());
-
         RobotType ret = null;
         float progression = 10;
 
-        if (built_miner_count < 2 || built_miner_count < 10 * ideal_miner_count && (an_enemy == null || an_enemy.distanceSquaredTo(rc.getLocation()) > 40)) {
+        if (built_miner_count < 2 || built_miner_count < ideal_miner_count && (an_enemy == null || !an_enemy.isWithinDistanceSquared(rc.getLocation(),40))) {
             float miner_progression = built_miner_count / (float) ideal_miner_count;
             if (miner_progression < progression) {
                 ret = RobotType.MINER;
@@ -106,15 +103,19 @@ public class Archon extends Robot {
             }
         }
 
-        if (built_soldier_count < 10 * ideal_soldier_count && (rc.getRoundNum() > 10 || built_miner_count >= 2 * rc.getArchonCount())) {
-            float soldier_progression = built_soldier_count / (float) ideal_soldier_count;
+        if (built_soldier_count+built_watch_tower_count < ideal_army_count && (rc.getRoundNum() > 10 || built_miner_count >= 2 * rc.getArchonCount())) {
+            float soldier_progression = (built_soldier_count+built_watch_tower_count) / (float) ideal_army_count;
             if (soldier_progression < progression) {
-                ret = RobotType.SOLDIER;
+                if(built_builder_count>0 && built_soldier_count+built_watch_tower_count>=20){
+                    ret = RobotType.WATCHTOWER;
+                }else {
+                    ret = RobotType.SOLDIER;
+                }
                 progression = soldier_progression;
             }
         }
 
-        if (built_builder_count < 10 * ideal_builder_count && built_soldier_count+built_watch_tower_count>=10) {
+        if (built_builder_count < ideal_builder_count) {
             float builder_progression = built_builder_count / (float) ideal_builder_count;
             if (builder_progression < progression) {
                 ret = RobotType.BUILDER;
@@ -123,27 +124,27 @@ public class Archon extends Robot {
         }
 
         if (ret != null) {
-            if (rc.getRoundNum() > 200 && rc.getTeamLeadAmount(rc.getTeam()) > 150 && rc.getTeamLeadAmount(rc.getTeam()) < 400) {
-                ret = null;
-            } else {
-                switch (ret) {
-                    case MINER:
-                        if (team_lead <= 50) ret = null;
-                        break;
-                    case SOLDIER:
-                        if (team_lead <= 75) ret = null;
-                        break;
-                    case BUILDER:
-                        if (team_lead <= 40) ret = null;
-                        break;
-                }
+            int team_lead = rc.getTeamLeadAmount(rc.getTeam());
+
+            switch (ret) {
+                case MINER:
+                    if (team_lead < 50) ret = null;
+                    break;
+                case SOLDIER:
+                    if (team_lead < 75) ret = null;
+                    break;
+                case BUILDER:
+                    if (team_lead < 40) ret = null;
+                    break;
+                case WATCHTOWER:
+                    ret=null;
             }
         }
 
 
-//        if (rc.getTeamGoldAmount(rc.getTeam()) > 20) {
-//            ret = RobotType.SAGE;
-//        }
+        if (rc.getTeamGoldAmount(rc.getTeam()) > 20 + rc.getTeamGoldAmount(rc.getTeam().opponent())) {
+            ret = RobotType.SAGE;
+        }
 
         return ret;
     }

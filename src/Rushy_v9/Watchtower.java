@@ -6,6 +6,8 @@ public class Watchtower extends Robot {
 
     int moved_for_attack = 0;
     int peace_count_down=0;
+    final int move_threshold_round=3;
+
 
     public Watchtower(RobotController rc) throws GameActionException {
         super(rc);
@@ -20,13 +22,12 @@ public class Watchtower extends Robot {
             moved_for_attack=0;
         }
 
-        int move_threshold_round=2;
 
         if(nearby_enemy_units.length>0){
             // if it should push, push.
 
             if(rc.getMode()==RobotMode.TURRET){
-                if(ally_dmg - enemy_dmg >10 && (rc.getLocation().x&1)!=(rc.getLocation().y&1) &&moved_for_attack<move_threshold_round){
+                if(ally_dmg >2*enemy_dmg && (rc.getLocation().x&1)==(rc.getLocation().y&1) &&moved_for_attack<move_threshold_round){
                     if(rc.isTransformReady()){
                         rc.transform();
                     }
@@ -35,7 +36,7 @@ public class Watchtower extends Robot {
                     if (toAttack!=null) rc.attack(toAttack.location);
                 }
             }else if(rc.getMode()==RobotMode.PORTABLE){
-                if(moved_for_attack<2){
+                if(ally_dmg >2*enemy_dmg && moved_for_attack<move_threshold_round){
                     if(nav.navigate(nearby_enemy_units[0].location)) moved_for_attack++;
                 }else if(rc.isTransformReady()){
                     rc.transform();
@@ -44,11 +45,13 @@ public class Watchtower extends Robot {
             peace_count_down=10;
         }else{
             peace_count_down--;
-            if(peace_count_down<=0) {
+            if(peace_count_down<=0 ) {
                 // in the safe zone, make sure minimum protect exists and continue walking.
                 if (rc.getMode() == RobotMode.TURRET) {
-                    if (rc.isTransformReady()) {
-                        rc.transform();
+                    if(ally_dmg>10&&(rc.getLocation().x%4!=1||rc.getLocation().y%4!=1)) {
+                        if (rc.isTransformReady()) {
+                            rc.transform();
+                        }
                     }
                 } else {
                     safeMovement();
@@ -78,14 +81,14 @@ public class Watchtower extends Robot {
         }
 
         if(consistent_target == null) {
-            consistent_target = Com.getTarget(0b001,0b001,6); // military support
+            consistent_target = Com.getTarget(0b001,0b001,6,16); // military support
             if (consistent_target!=null) {
                 is_target_from_com = true;
             }
         }
 
         if(consistent_target == null) {
-            consistent_target = Com.getTarget(0b100,0b100,12); // pioneer
+            consistent_target = Com.getTarget(0b100,0b100,12,16); // pioneer
             if (consistent_target!=null) {
                 is_target_from_com = true;
             }

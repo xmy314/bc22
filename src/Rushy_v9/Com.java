@@ -7,6 +7,11 @@ import static Rushy_v9.Robot.*;
 public class Com {
     /*
     0 - 1 are for head counting units. written when each unit is created and whe they are about to die.
+        __________ army count
+        ___ lab count
+        ___ archon count
+        ________ miner count
+        ________ builder count
     2 is for location of base and its nearby rubble count.
     3 is for location of the army. should have been mode but mean also works.
         most protected and most dangerous point on the map.
@@ -37,10 +42,6 @@ public class Com {
         chunk_count_x = (int) Math.ceil(max_X / (double) chunk_side_length);
         chunk_count_y = (int) Math.ceil(max_Y / (double) chunk_side_length);
         total_chunk_count = chunk_count_x * chunk_count_y;
-
-        if (rc.getType() == RobotType.ARCHON) {
-            partialResetExploration();
-        }
     }
 
     public static MapLocation getChunkCenter(int chunk_x, int chunk_y) {
@@ -74,15 +75,15 @@ public class Com {
         return getFlags(mapLocationToChunkID(loc));
     }
 
-    public static MapLocation getTarget(int read_mask, int data_mask, int depth) throws GameActionException {
+    public static MapLocation getTarget(int read_mask, int data_mask, int depth, int max_skip) throws GameActionException {
         // read mask is to only get location with that flag mask
 
         int current_chunk_x = rc.getLocation().x / chunk_side_length;
         int current_chunk_y = rc.getLocation().y / chunk_side_length;
 
-        int avoidance_counter = rc.getID() % 8;
 
-        MapLocation potential_target = null;
+        MapLocation[] potential_targets = new MapLocation[max_skip];
+        int recorded_potential_targets=0;
 
         int chunk_x;
         int chunk_y;
@@ -94,12 +95,8 @@ public class Com {
                 chunk_y = current_chunk_y + d - off;
                 if (chunk_x >= 0 && chunk_y < chunk_count_y) {
                     if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
-                        if (avoidance_counter == 0) {
-                            return getChunkCenter(chunk_x, chunk_y);
-                        } else {
-                            potential_target = getChunkCenter(chunk_x, chunk_y);
-                            avoidance_counter--;
-                        }
+                        potential_targets[recorded_potential_targets++]=getChunkCenter(chunk_x,chunk_y);
+                        if(recorded_potential_targets>=max_skip) break;
                     }
                 }
 
@@ -107,12 +104,8 @@ public class Com {
                 chunk_y = current_chunk_y + off;
                 if (chunk_x < chunk_count_x && chunk_y < chunk_count_y) {
                     if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
-                        if (avoidance_counter == 0) {
-                            return getChunkCenter(chunk_x, chunk_y);
-                        } else {
-                            potential_target = getChunkCenter(chunk_x, chunk_y);
-                            avoidance_counter--;
-                        }
+                        potential_targets[recorded_potential_targets++]=getChunkCenter(chunk_x,chunk_y);
+                        if(recorded_potential_targets>=max_skip) break;
                     }
                 }
 
@@ -120,12 +113,8 @@ public class Com {
                 chunk_y = current_chunk_y + off - d;
                 if (chunk_x < chunk_count_x && chunk_y >= 0) {
                     if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
-                        if (avoidance_counter == 0) {
-                            return getChunkCenter(chunk_x, chunk_y);
-                        } else {
-                            potential_target = getChunkCenter(chunk_x, chunk_y);
-                            avoidance_counter--;
-                        }
+                        potential_targets[recorded_potential_targets++]=getChunkCenter(chunk_x,chunk_y);
+                        if(recorded_potential_targets>=max_skip) break;
                     }
                 }
 
@@ -133,21 +122,15 @@ public class Com {
                 chunk_y = current_chunk_y - off;
                 if (chunk_x >= 0 && chunk_y >= 0) {
                     if ((getFlags(chunk_x, chunk_y) & read_mask) == data_mask) {
-                        if (avoidance_counter == 0) {
-                            return getChunkCenter(chunk_x, chunk_y);
-                        } else {
-                            potential_target = getChunkCenter(chunk_x, chunk_y);
-                            avoidance_counter--;
-                        }
+                        potential_targets[recorded_potential_targets++]=getChunkCenter(chunk_x,chunk_y);
+                        if(recorded_potential_targets>=max_skip) break;
                     }
                 }
             }
-//            if (potential_target != null) {
-//                return potential_target;
-//            }
+            if(recorded_potential_targets>=max_skip) break;
         }
 
-        return potential_target;
+        return (recorded_potential_targets>0)? potential_targets[rc.getID()%recorded_potential_targets]:null;
     }
 
     public static void setTarget(int write_mask, int data_mask, int chunk_id) throws GameActionException {

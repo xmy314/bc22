@@ -23,25 +23,20 @@ public class Miner extends Robot {
         if (!rc.isActionReady()) return;
         if (mine_over_thresh_count==0) return;
 
-        if (Com.getHeadcount(RobotType.MINER) >= 10 && rc.getRoundNum() < 1840) {
-            if (rc.senseLead(rc.getLocation()) == 0) {
-                if (ally_miner_count > 3 * mine_over_thresh_count) {
-                    Com.decrementHeadcount();
-                    rc.disintegrate();
+        MapLocation closest_mine=null;
+        if(mine_over_thresh_count<10) {
+            int closest_dist = 100;
+            for (int i = 0; i < mine_over_thresh_count; i++) {
+                int n_dist = rc.getLocation().distanceSquaredTo(mines[i]);
+                if (n_dist < closest_dist) {
+                    closest_dist = n_dist;
+                    closest_mine = mines[i];
                 }
             }
+            if (closest_mine == null) return;
+        }else{
+            closest_mine = mines[rc.getID()%mine_over_thresh_count];
         }
-
-        int closest_dist = 100;
-        MapLocation closest_mine=null;
-        for(int i=0;i<mine_over_thresh_count;i++){
-            int n_dist = rc.getLocation().distanceSquaredTo(mines[i]);
-            if(n_dist<closest_dist){
-                closest_dist=n_dist;
-                closest_mine=mines[i];
-            }
-        }
-        if(closest_mine==null) return;
 
         int lowest_rubble = rc.senseRubble(closest_mine);
         MapLocation opt_loc = closest_mine;
@@ -66,7 +61,7 @@ public class Miner extends Robot {
                 while (rc.canMineGold(mineLocation)) {
                     rc.mineGold(mineLocation);
                 }
-                while (rc.canMineLead(mineLocation) && (rc.senseLead(mineLocation) > 1 || ((enemy_archon_in_sight||enemy_dmg>ally_dmg) && !ally_archon_in_sight)  )) {
+                while (rc.canMineLead(mineLocation) && (rc.senseLead(mineLocation) > 1 || (enemy_archon_in_sight && !ally_archon_in_sight)  )) {
                     rc.mineLead(mineLocation);
                 }
                 if (!rc.isActionReady()) {
@@ -129,7 +124,7 @@ public class Miner extends Robot {
 
         if (current_state==MINER_ACTION_STATES.STALL) {
             if (ally_miner_count >= 5 || Com.getHeadcount(RobotType.MINER)<10) {
-                consistent_target = Com.getTarget(0b101,0b100,12); // pioneer, but don't run to enemy
+                consistent_target = Com.getTarget(0b101,0b100,8,32); // pioneer, but don't run to enemy
                 if (consistent_target != null) {
                     current_state = MINER_ACTION_STATES.EXPLORE;
                 }
@@ -137,11 +132,13 @@ public class Miner extends Robot {
         }
 
         if (current_state==MINER_ACTION_STATES.STALL) {
-            consistent_target = Com.getTarget(0b011,0b010,12); // mine, don't run to enemy
+            consistent_target = Com.getTarget(0b011,0b010,8,32); // mine, don't run to enemy
             if (consistent_target != null) {
                 current_state = MINER_ACTION_STATES.MINE;
             }
         }
+
+        if(current_state==MINER_ACTION_STATES.MINE && !rc.isActionReady()) return;
 
         if (current_state!=MINER_ACTION_STATES.STALL && consistent_target != null) {
             nav.navigate(consistent_target);

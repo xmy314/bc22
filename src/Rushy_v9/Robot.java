@@ -38,30 +38,36 @@ public class Robot {
     static boolean ally_archon_in_sight;
     static boolean enemy_archon_in_sight;
 
-    // just for miners
-    static int mine_over_thresh_count;
-    static int ally_miner_count;
-    static MapLocation[] mines;
-
     // for all
     static MapLocation consistent_target;
     static int consistent_rounds;
     static boolean is_target_from_com=false;
 
+    // just for miners
+    static int mine_over_thresh_count;
+    static int ally_miner_count;
+    static MapLocation[] mines;
+
+    // for archon and builders
+    static int ideal_miner_count;
+    static int ideal_builder_count;
+    static int ideal_army_count;
 
     public Robot(RobotController r) throws GameActionException {
         rc = r;
-        nav = new Nav(r);
         rng=new Random(rc.getID());
-
         max_X = rc.getMapWidth();
         max_Y = rc.getMapHeight();
 
+        nav = new Nav(r);
         Com.init();
+        Com.incrementHeadCount();
 
         spawn_point = rc.getLocation();
 
-        Com.incrementHeadCount();
+        ideal_miner_count = Math.max(10, (max_X * max_Y) / 10); // 16 for 13/turn/square.
+        ideal_army_count = 2*ideal_miner_count;
+        ideal_builder_count = ideal_miner_count;
 
     }
 
@@ -89,8 +95,8 @@ public class Robot {
                 case WATCHTOWER:
                     if(nearby_unit.getMode()==RobotMode.TURRET){
                         ally_dmg +=nearby_unit.type.getDamage(nearby_unit.level)/(1+rc.senseRubble(nearby_unit.location)/10f);
+                        ally_health+=nearby_unit.health;
                     }
-                    ally_health+=nearby_unit.health;
                     break;
                 case ARCHON:
                     ally_archon_in_sight = true;
@@ -120,7 +126,7 @@ public class Robot {
             }
         }
 
-        mines = rc.senseNearbyLocationsWithLead(20,16); // any larger than some other miner can probably get to it first
+        mines = rc.senseNearbyLocationsWithLead(20,(rc.getRoundNum()<200)?6:((rc.getRoundNum()<800)?11:16)); // any larger than some other miner can probably get to it first
         mine_over_thresh_count = mines.length;
 
         Com.verifyTargets();

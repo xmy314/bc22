@@ -6,12 +6,12 @@ public class Soldier extends Robot {
 
     private enum SOLDIER_ACTION_STATE {FIGHT, EXPLORE, HEAL, SACRIFICE, STALL}
 
+    final static int HEAL_THRESH=15;
+
     public SOLDIER_ACTION_STATE current_state = SOLDIER_ACTION_STATE.STALL;
-    public int soldier_cap;
 
     public Soldier(RobotController rc) throws GameActionException {
         super(rc);
-        soldier_cap=Math.max(10,max_X*max_Y/25);
     }
 
     public void takeTurn() throws GameActionException {
@@ -36,18 +36,20 @@ public class Soldier extends Robot {
             }
             micro_infos[8] = new SoldierMicroInfo(rc.getLocation());
 
-            for (RobotInfo nearby_enemy_unit : nearby_enemy_units) {
+            for(int i=nearby_enemy_units.length-1;--i>=0;){
+                RobotInfo nearby_enemy_unit = nearby_enemy_units[i];
                 float dmg = Math.abs(nearby_enemy_unit.type.getDamage(nearby_enemy_unit.level) / (1 + rc.senseRubble(nearby_enemy_unit.getLocation()) / 10f));
-                for (SoldierMicroInfo micro_info : micro_infos) {
-                    micro_info.updateEnemy(nearby_enemy_unit, dmg);
+                for(int j=7;--j>=0;){
+                    micro_infos[j].updateEnemy(nearby_enemy_unit, dmg);
                 }
             }
 
             int best_dex = 8;
-            int health = (Com.getHeadcount(RobotType.SOLDIER)<soldier_cap)?rc.getHealth():50; // so it doesn't try to get away
+            int health = (Com.getHeadcount(RobotType.SOLDIER)+Com.getHeadcount(RobotType.WATCHTOWER)<ideal_army_count)?rc.getHealth():50; // so it doesn't try to get away
+            boolean just_push = ally_dmg > Math.min(2+3*rc.getRoundNum()/1000f,5) * enemy_dmg||rc.getRoundNum()>=1500||Com.getHeadcount(RobotType.SOLDIER)+Com.getHeadcount(RobotType.WATCHTOWER)>ideal_army_count;
             for (int i = 0; i < 8; i++) {
                 if (!rc.canMove(directions[i])) continue;
-                if (micro_infos[i].isBetter(micro_infos[best_dex], health,ally_dmg > 5 * enemy_dmg||rc.getRoundNum()>=1700||Com.getHeadcount(RobotType.WATCHTOWER)>soldier_cap)) {
+                if (micro_infos[i].isBetter(micro_infos[best_dex], health,just_push)) {
                     best_dex = i;
                 }
             }
@@ -55,7 +57,7 @@ public class Soldier extends Robot {
             if (best_dex == 8) {
                 RobotInfo toAttack = chooseAttackTarget(nearby_enemy_units);
                 if (toAttack != null) rc.attack(toAttack.location);
-            } else if (micro_infos[best_dex].rubble < micro_infos[8].rubble) {
+            } else if (micro_infos[best_dex].padded_rubble < micro_infos[8].padded_rubble) {
                 nav.moveWrapper(directions[best_dex]);
                 RobotInfo toAttack = chooseAttackTarget(nearby_enemy_units);
                 if (toAttack != null) rc.attack(toAttack.location);
@@ -77,7 +79,7 @@ public class Soldier extends Robot {
         int min_dist_to_enemy;
         MapLocation loc;
         boolean on_map;
-        int rubble;
+        int padded_rubble;
         double cost_multi;
 
         public SoldierMicroInfo(MapLocation loc) {
@@ -85,8 +87,8 @@ public class Soldier extends Robot {
             try {
                 on_map = rc.onTheMap(loc);
                 if (on_map) {
-                    rubble = rc.senseRubble(loc);
-                    cost_multi = Math.pow(1 + rubble / 10f, 2);
+                    padded_rubble = 10+rc.senseRubble(loc);
+                    cost_multi = Math.pow(padded_rubble, 2)/100;
                     potential_dmg = 0;
                     min_dist_to_enemy = 10000;
                 }
@@ -116,7 +118,7 @@ public class Soldier extends Robot {
                 if ((potential_dmg + 3) * cost_multi < (mi.potential_dmg + 1) * mi.cost_multi) return true;
                 if ((potential_dmg + 1) * cost_multi > (mi.potential_dmg + 3) * mi.cost_multi) return false;
 
-                if (health < 12) {
+                if (health <= HEAL_THRESH) {
                     if (min_dist_to_enemy <= 13) {
                         return min_dist_to_enemy / cost_multi > mi.min_dist_to_enemy / mi.cost_multi;
                     } else {
@@ -125,9 +127,9 @@ public class Soldier extends Robot {
                 }
 
                 // low rubble is better
-                return rubble < mi.rubble;
+                return padded_rubble < mi.padded_rubble;
             }else{
-                return min_dist_to_enemy*cost_multi < mi.min_dist_to_enemy * mi.cost_multi;
+                return min_dist_to_enemy*cost_multi < mi.min_dist_to_enemy * cost_multi;
             }
         }
     }
@@ -140,7 +142,7 @@ public class Soldier extends Robot {
         if (!rc.isMovementReady()) return;
 
         // check if there is any mission by communication
-        if (rc.getHealth() < 15 && Com.getHeadcount(RobotType.SOLDIER)<soldier_cap) {
+        if (rc.getHealth() < 15 && Com.getHeadcount(RobotType.SOLDIER)<ideal_army_count) {
             current_state = SOLDIER_ACTION_STATE.HEAL;
             consistent_target = Com.getMainArchonLoc();
         }
@@ -162,22 +164,23 @@ public class Soldier extends Robot {
                 if (rc.getHealth() == 50) {
                     current_state = SOLDIER_ACTION_STATE.STALL;
                     consistent_target = null;
-                }else if((Com.getHeadcount(RobotType.SOLDIER)>soldier_cap || nearby_ally_units.length>30) && rc.getHealth()<15 && nearby_enemy_units.length==0 && rc.senseLead(rc.getLocation())==0){
+                }else if((Com.getHeadcount(RobotType.SOLDIER)>ideal_army_count || nearby_ally_units.length>30) && rc.getHealth()<HEAL_THRESH && nearby_enemy_units.length==0 && rc.senseLead(rc.getLocation())==0){
                     rc.disintegrate();
                 }
         }
 
         if (current_state == SOLDIER_ACTION_STATE.STALL) {
-            consistent_target = Com.getTarget(0b001, 0b001, 6); // military support
+            consistent_target = Com.getTarget(0b001, 0b001, 6,16); // military support
             if (consistent_target != null) {
                 current_state = SOLDIER_ACTION_STATE.FIGHT;
             }
         }
 
         if (current_state == SOLDIER_ACTION_STATE.STALL) {
-            consistent_target = Com.getTarget(0b100, 0b100, 12); // pioneer
+            consistent_target = Com.getTarget(0b100, 0b100, 12,16); // pioneer
             if (consistent_target != null) {
                 current_state = SOLDIER_ACTION_STATE.EXPLORE;
+                Com.setTarget(0b001,0b000,consistent_target);
             }
         }
 
